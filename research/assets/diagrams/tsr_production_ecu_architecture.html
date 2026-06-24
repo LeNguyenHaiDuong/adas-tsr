@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>TSR Production — Kiến trúc ECU Embedded</title>
+<script>
+(function(){var t=localStorage.getItem('tsr-theme');if(t==='light')document.documentElement.classList.remove('dark');else if(t==='dark'||window.matchMedia('(prefers-color-scheme:dark)').matches)document.documentElement.classList.add('dark');})();
+</script>
+<style>
+:root{--bg:#f4f6f8;--fg:#1a2332;--surface:#fff;--line:#c5d0dc;--muted:#6b7c93;--accent:#2563eb;--perception:#3b82f6;--feature:#059669;--platform:#7c3aed;--vehicle:#d97706;--health:#dc2626;--shadow:0 4px 24px rgba(0,0,0,.08)}
+html.dark{--bg:#0f1419;--fg:#e8edf4;--surface:#1a2332;--line:#2d3a4d;--muted:#8b9cb3;--shadow:0 4px 24px rgba(0,0,0,.35)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--fg);line-height:1.5;min-height:100vh}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 20px 48px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px}
+h1{font-size:1.35rem;font-weight:700}
+.sub{font-size:.85rem;color:var(--muted);margin-top:4px}
+#themeBtn{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;color:var(--fg);font-size:.8rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+svg{width:100%;height:auto;display:block}
+.zone{fill:var(--bg);stroke:var(--line);stroke-width:1.5;stroke-dasharray:6 4}
+.node rect{fill:var(--surface);stroke:var(--line);stroke-width:1.8;rx:10;transition:stroke .15s}
+.node:hover rect{stroke-width:2.4}
+.node text{font-size:11px;fill:var(--fg);pointer-events:none}
+.node .lbl{font-weight:700;font-size:12px}
+.node .sub{fill:var(--muted);font-size:9.5px}
+.edge{fill:none;stroke:var(--muted);stroke-width:1.6;marker-end:url(#arr)}
+.edge.health{stroke:var(--health);stroke-dasharray:5 3}
+.edge.lit{stroke:var(--accent);stroke-width:2.2;marker-end:url(#arr-lit)}
+.node.lit rect{stroke:var(--accent);stroke-width:2.4}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.chip{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:.78rem;cursor:pointer;color:var(--muted)}
+.chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;font-size:.78rem;color:var(--muted)}
+.legend span::before{content:'';display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.l-perc::before{background:var(--perception)}.l-feat::before{background:var(--feature)}.l-plat::before{background:var(--platform)}.l-veh::before{background:var(--vehicle)}.l-health::before{background:var(--health)}
+#detail{margin-top:16px;padding:14px 16px;background:var(--bg);border-radius:10px;border:1px solid var(--line);font-size:.82rem;min-height:52px;color:var(--muted)}
+#detail strong{color:var(--fg)}
+footer{margin-top:18px;font-size:.75rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>TSR Production — Kiến trúc ECU Embedded</h1>
+    <p class="sub">adas-tsr · Phần II · Block diagram mức xe cho tech lead triển khai</p>
+  </div>
+  <button id="themeBtn" type="button">🌓 Theme</button>
+</header>
+<div class="chips" id="chips">
+  <button class="chip active" data-flow="all">Toàn bộ</button>
+  <button class="chip" data-flow="perception">Perception path</button>
+  <button class="chip" data-flow="feature">Feature + HMI</button>
+  <button class="chip" data-flow="health">Health / Diagnostics</button>
+</div>
+<div class="card">
+<svg viewBox="0 0 1100 720" xmlns="http://www.w3.org/2000/svg" aria-label="TSR ECU architecture">
+<defs>
+  <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0 0,8 4,0 8" fill="var(--muted)"/></marker>
+  <marker id="arr-lit" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0 0,8 4,0 8" fill="var(--accent)"/></marker>
+</defs>
+
+<!-- Zones -->
+<rect class="zone" x="20" y="20" width="1060" height="88" rx="12"/>
+<text x="36" y="42" fill="var(--muted)" font-size="11" font-weight="600">SENSOR LAYER</text>
+
+<rect class="zone" x="20" y="128" width="1060" height="200" rx="12"/>
+<text x="36" y="150" fill="var(--muted)" font-size="11" font-weight="600">ADAS ECU — PERCEPTION &amp; FEATURE (Application Layer)</text>
+
+<rect class="zone" x="20" y="348" width="520" height="120" rx="12"/>
+<text x="36" y="370" fill="var(--muted)" font-size="11" font-weight="600">RUNTIME PLATFORM</text>
+
+<rect class="zone" x="560" y="348" width="520" height="120" rx="12"/>
+<text x="576" y="370" fill="var(--muted)" font-size="11" font-weight="600">BSP / DRIVER</text>
+
+<rect class="zone" x="20" y="488" width="1060" height="100" rx="12"/>
+<text x="36" y="510" fill="var(--muted)" font-size="11" font-weight="600">VEHICLE INTEGRATION</text>
+
+<rect class="zone" x="20" y="608" width="1060" height="88" rx="12"/>
+<text x="36" y="630" fill="var(--muted)" font-size="11" font-weight="600">OFFBOARD / SERVICE</text>
+
+<!-- Edges (under nodes) -->
+<path class="edge" data-flow="perception" d="M 200 108 L 200 168"/>
+<path class="edge" data-flow="perception" d="M 200 228 L 200 248 L 120 248 L 120 268"/>
+<path class="edge" data-flow="perception" d="M 200 228 L 200 248 L 280 248 L 280 268"/>
+<path class="edge" data-flow="perception" d="M 120 308 L 120 328 L 360 328 L 360 348"/>
+<path class="edge" data-flow="perception" d="M 280 308 L 280 328 L 440 328 L 440 268"/>
+<path class="edge" data-flow="perception" d="M 440 308 L 440 328 L 560 328 L 560 268"/>
+<path class="edge" data-flow="perception" d="M 560 308 L 560 328 L 680 328 L 680 268"/>
+<path class="edge" data-flow="feature" d="M 680 308 L 680 328 L 800 328 L 800 268"/>
+<path class="edge" data-flow="feature" d="M 800 308 L 800 328 L 920 328 L 920 268"/>
+<path class="edge" data-flow="feature" d="M 920 308 L 920 498 L 200 498"/>
+<path class="edge" data-flow="feature" d="M 920 308 L 920 498 L 420 498"/>
+<path class="edge" data-flow="health" d="M 1000 228 L 1000 248 L 1000 268"/>
+<path class="edge health" data-flow="health" d="M 1000 308 L 1000 380 L 360 380"/>
+<path class="edge health" data-flow="health" d="M 360 468 L 360 498 L 640 498"/>
+<path class="edge" d="M 200 588 L 200 608 L 200 628"/>
+<path class="edge" d="M 640 588 L 640 608 L 640 628"/>
+<path class="edge" d="M 900 588 L 900 608 L 900 628"/>
+
+<!-- Nodes -->
+<g class="node" data-id="cam" data-flow="perception" transform="translate(120,56)">
+  <rect width="160" height="44" style="stroke:var(--perception)"/>
+  <text class="lbl" x="80" y="18" text-anchor="middle">Front Camera</text>
+  <text class="sub" x="80" y="34" text-anchor="middle">HDR · SerDes · timestamp</text>
+  <title>Camera module trước — nguồn frame và metadata thời gian</title>
+</g>
+
+<g class="node" data-id="cap" data-flow="perception" transform="translate(120,168)">
+  <rect width="160" height="60"/>
+  <text class="lbl" x="80" y="22" text-anchor="middle">Capture + Timestamp</text>
+  <text class="sub" x="80" y="38" text-anchor="middle">timeout · corruption flags</text>
+  <title>Xác thực frame, đồng bộ timestamp với vehicle time domain</title>
+</g>
+
+<g class="node" data-id="iq" data-flow="perception" transform="translate(40,268)">
+  <rect width="160" height="60" style="stroke:var(--perception)"/>
+  <text class="lbl" x="80" y="22" text-anchor="middle">Quality + ODD Gate</text>
+  <text class="sub" x="80" y="38" text-anchor="middle">blur · glare · exposure</text>
+</g>
+
+<g class="node" data-id="det" data-flow="perception" transform="translate(200,268)">
+  <rect width="160" height="60" style="stroke:var(--perception)"/>
+  <text class="lbl" x="80" y="22" text-anchor="middle">TSR Detector</text>
+  <text class="sub" x="80" y="38" text-anchor="middle">YOLO / NPU runtime</text>
+</g>
+
+<g class="node" data-id="trk" data-flow="perception" transform="translate(360,268)">
+  <rect width="160" height="60" style="stroke:var(--perception)"/>
+  <text class="lbl" x="80" y="22" text-anchor="middle">Track + Confirm</text>
+  <text class="sub" x="80" y="38" text-anchor="middle">hit/miss · track_id</text>
+</g>
+
+<g class="node" data-id="map" data-flow="perception" transform="translate(520,268)">
+  <rect width="160" height="60" style="stroke:var(--perception)"/>
+  <text class="lbl" x="80" y="22" text-anchor="middle">Context + Map</text>
+  <text class="sub" x="80" y="38" text-anchor="middle">ego-lane · corroboration</text>
+</g>
+
+<g class="node" data-id="arb" data-flow="feature" transform="translate(680,268)">
+  <rect width="160" height="60" style="stroke:var(--feature)"/>
+  <text class="lbl" x="80" y="22" text-anchor="middle">Feature Arbiter</text>
+  <text class="sub" x="80" y="38" text-anchor="middle">state · priority · timeout</text>
+</g>
+
+<g class="node" data-id="hmi" data-flow="feature" transform="translate(840,268)">
+  <rect width="160" height="60" style="stroke:var(--feature)"/>
+  <text class="lbl" x="80" y="22" text-anchor="middle">HMI Policy</text>
+  <text class="sub" x="80" y="38" text-anchor="middle">icon · chime · suppress</text>
+</g>
+
+<g class="node" data-id="health" data-flow="health" transform="translate(920,168)">
+  <rect width="160" height="60" style="stroke:var(--health)"/>
+  <text class="lbl" x="80" y="22" text-anchor="middle">Health Monitor</text>
+  <text class="sub" x="80" y="38" text-anchor="middle">alive · deadline · logical</text>
+</g>
+
+<g class="node" data-id="sched" data-flow="health" transform="translate(40,388)">
+  <rect width="140" height="56" style="stroke:var(--platform)"/>
+  <text class="lbl" x="70" y="22" text-anchor="middle">Scheduler</text>
+  <text class="sub" x="70" y="38" text-anchor="middle">tasks · IPC · memory</text>
+</g>
+
+<g class="node" data-id="wdg" data-flow="health" transform="translate(200,388)">
+  <rect width="140" height="56" style="stroke:var(--platform)"/>
+  <text class="lbl" x="70" y="22" text-anchor="middle">Watchdog Svc</text>
+  <text class="sub" x="70" y="38" text-anchor="middle">kick · restart policy</text>
+</g>
+
+<g class="node" data-id="log" data-flow="health" transform="translate(360,388)">
+  <rect width="140" height="56" style="stroke:var(--platform)"/>
+  <text class="lbl" x="70" y="22" text-anchor="middle">Event Logger</text>
+  <text class="sub" x="70" y="38" text-anchor="middle">freeze-frame</text>
+</g>
+
+<g class="node" data-id="bsp" data-flow="perception" transform="translate(580,388)">
+  <rect width="140" height="56" style="stroke:var(--platform)"/>
+  <text class="lbl" x="70" y="22" text-anchor="middle">Camera BSP</text>
+  <text class="sub" x="70" y="38" text-anchor="middle">MIPI · DMA · deser</text>
+</g>
+
+<g class="node" data-id="npu" data-flow="perception" transform="translate(740,388)">
+  <rect width="140" height="56" style="stroke:var(--platform)"/>
+  <text class="lbl" x="70" y="22" text-anchor="middle">NPU / GPU RT</text>
+  <text class="sub" x="70" y="38" text-anchor="middle">TensorRT · OpenVINO</text>
+</g>
+
+<g class="node" data-id="stor" data-flow="health" transform="translate(900,388)">
+  <rect width="140" height="56" style="stroke:var(--platform)"/>
+  <text class="lbl" x="70" y="22" text-anchor="middle">Storage</text>
+  <text class="sub" x="70" y="38" text-anchor="middle">model · config A/B</text>
+</g>
+
+<g class="node" data-id="cluster" data-flow="feature" transform="translate(40,528)">
+  <rect width="160" height="44" style="stroke:var(--vehicle)"/>
+  <text class="lbl" x="80" y="18" text-anchor="middle">Cluster / HUD</text>
+  <text class="sub" x="80" y="34" text-anchor="middle">ICD HMI signals</text>
+</g>
+
+<g class="node" data-id="can" data-flow="feature" transform="translate(240,528)">
+  <rect width="160" height="44" style="stroke:var(--vehicle)"/>
+  <text class="lbl" x="80" y="18" text-anchor="middle">CAN / Ethernet</text>
+  <text class="sub" x="80" y="34" text-anchor="middle">tsr_* @ 100ms</text>
+</g>
+
+<g class="node" data-id="nav" data-flow="perception" transform="translate(440,528)">
+  <rect width="160" height="44" style="stroke:var(--vehicle)"/>
+  <text class="lbl" x="80" y="18" text-anchor="middle">Navigation / Map</text>
+  <text class="sub" x="80" y="34" text-anchor="middle">speed zone input</text>
+</g>
+
+<g class="node" data-id="dtc" data-flow="health" transform="translate(640,528)">
+  <rect width="160" height="44" style="stroke:var(--vehicle)"/>
+  <text class="lbl" x="80" y="18" text-anchor="middle">UDS / DTC</text>
+  <text class="sub" x="80" y="34" text-anchor="middle">service diagnostics</text>
+</g>
+
+<g class="node" data-id="gw" data-flow="health" transform="translate(840,528)">
+  <rect width="160" height="44" style="stroke:var(--vehicle)"/>
+  <text class="lbl" x="80" y="18" text-anchor="middle">Gateway</text>
+  <text class="sub" x="80" y="34" text-anchor="middle">vehicle signals in</text>
+</g>
+
+<g class="node" data-id="ota" data-flow="health" transform="translate(120,628)">
+  <rect width="160" height="44" style="stroke:var(--vehicle)"/>
+  <text class="lbl" x="80" y="18" text-anchor="middle">OTA Backend</text>
+  <text class="sub" x="80" y="34" text-anchor="middle">signed package</text>
+</g>
+
+<g class="node" data-id="telem" data-flow="health" transform="translate(560,628)">
+  <rect width="200" height="44" style="stroke:var(--vehicle)"/>
+  <text class="lbl" x="100" y="18" text-anchor="middle">Telematics / Fleet Monitor</text>
+  <text class="sub" x="100" y="34" text-anchor="middle">regression by ODD slice</text>
+</g>
+
+<g class="node" data-id="tool" data-flow="health" transform="translate(820,628)">
+  <rect width="160" height="44" style="stroke:var(--vehicle)"/>
+  <text class="lbl" x="80" y="18" text-anchor="middle">Service Tool</text>
+  <text class="sub" x="80" y="34" text-anchor="middle">DID · freeze-frame</text>
+</g>
+</svg>
+<div class="legend">
+  <span class="l-perc">Perception</span>
+  <span class="l-feat">Feature / HMI</span>
+  <span class="l-plat">Platform / BSP</span>
+  <span class="l-veh">Vehicle integration</span>
+  <span class="l-health">Health / diagnostics</span>
+</div>
+<div id="detail">Hover hoặc click một block để xem mô tả. Dùng chip phía trên để lọc luồng.</div>
+</div>
+<footer>
+  Mở file: <code>research/assets/diagrams/tsr_production_ecu_architecture.html</code> ·
+  Đồng bộ với <code>1.research_tsr_three_part_unified.md</code> Phần II · 2026-06-18
+</footer>
+</div>
+<script>
+const INFO={
+  cam:'<strong>Front Camera Module</strong> — HDR/WDR, FOV, SerDes. Output: raw/YUV frame + hardware timestamp. Failure: no frame → TSR_CAM_NO_FRAME.',
+  cap:'<strong>Capture and Timestamp</strong> — Validate frame integrity, map to ECU time base. Không cho perception chạy trên dữ liệu corrupt.',
+  iq:'<strong>Image Quality + ODD Gate</strong> — Blur/glare/exposure/contamination. Ngoài ODD → suppress hoặc DEGRADED trước detector.',
+  det:'<strong>TSR Detector</strong> — One-stage detector (repo: YOLO11s). Output: candidate bbox + class + confidence. Không đi thẳng HMI.',
+  trk:'<strong>Tracking + Temporal Confirmation</strong> — min_confirm_hits, miss tolerance. Chống flicker; khác hold-previous trong demo.',
+  map:'<strong>Context + Map Fusion</strong> — Ego-lane relevance, map corroboration, conflict arbitration.',
+  arb:'<strong>Feature Arbiter + State Manager</strong> — INIT/ACTIVE/DEGRADED/UNAVAILABLE. Quyết định sign cuối và availability.',
+  hmi:'<strong>HMI Output Policy</strong> — Chỉ confirmed sign; no flicker; NHTSA guardrail. Raw detector không lên cluster.',
+  health:'<strong>Health Monitor</strong> — Alive, deadline, logical supervision. Kích hoạt degrade/restart/DTC.',
+  sched:'<strong>Runtime Platform</strong> — Task scheduler, IPC, memory supervision (AUTOSAR-style separation).',
+  wdg:'<strong>Watchdog Service</strong> — Process/task kick; restart policy khi miss deadline lặp.',
+  log:'<strong>Event Logger + Freeze-frame</strong> — Context tại lỗi: speed, state, quality, latency, last sign.',
+  bsp:'<strong>BSP / Camera Driver</strong> — MIPI-CSI, DMA, deserializer bring-up.',
+  npu:'<strong>NPU/GPU Runtime</strong> — TensorRT, OpenVINO, vendor NPU. Model blob từ signed storage.',
+  stor:'<strong>Persistent Storage</strong> — Model A/B partition, config, rollback image.',
+  cluster:'<strong>Cluster / HUD</strong> — ICD signals: tsr_feature_state, tsr_speed_limit_value, validity bits.',
+  can:'<strong>Vehicle Bus Publisher</strong> — CAN FD / Automotive Ethernet / SOME/IP @ 100ms.',
+  nav:'<strong>Map Input</strong> — Speed zone, road class, freshness — input cho fusion, không thay detector.',
+  dtc:'<strong>UDS Diagnostics</strong> — DTC set/clear, DID read, tester session.',
+  gw:'<strong>Gateway</strong> — Ego speed, yaw, gear, wiper — vehicle context cho ODD.',
+  ota:'<strong>OTA</strong> — UNECE R155/R156: signed update, rollback, post-update sanity.',
+  telem:'<strong>Fleet Monitoring</strong> — Regression theo class và ODD slice sau SOP.',
+  tool:'<strong>Service Tool</strong> — Freeze-frame replay, DTC triage ngoài hiện trường.'
+};
+document.querySelectorAll('.node').forEach(n=>{
+  n.style.cursor='pointer';
+  n.addEventListener('mouseenter',()=>{document.getElementById('detail').innerHTML=INFO[n.dataset.id]||'';});
+  n.addEventListener('click',()=>{document.getElementById('detail').innerHTML=INFO[n.dataset.id]||'';});
+});
+document.getElementById('themeBtn').onclick=()=>{
+  document.documentElement.classList.toggle('dark');
+  localStorage.setItem('tsr-theme',document.documentElement.classList.contains('dark')?'dark':'light');
+};
+function setFlow(f){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.dataset.flow===f));
+  const show=f==='all'?null:f;
+  document.querySelectorAll('.node,.edge').forEach(el=>{
+    const ef=el.dataset.flow;
+    const on=!show||ef===show||(f==='health'&&ef==='health')||(f==='feature'&&(ef==='feature'||ef==='perception'&&['arb','hmi'].includes(el.closest?.('[data-id]')?.dataset?.id)));
+    el.style.opacity=on?1:.18;
+  });
+  if(f==='perception') document.querySelectorAll('[data-id="arb"],[data-id="hmi"]').forEach(n=>n.style.opacity=.25);
+  if(f==='feature') document.querySelectorAll('[data-id="det"],[data-id="iq"]').forEach(n=>n.style.opacity=.35);
+}
+document.getElementById('chips').onclick=e=>{
+  const b=e.target.closest('.chip');if(b)setFlow(b.dataset.flow);
+};
+</script>
+</body>
+</html>

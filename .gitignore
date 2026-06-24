@@ -1,0 +1,155 @@
+# TSR - Traffic Sign Recognition (ADAS)
+# .gitignore - Optimized for ML / Computer Vision projects
+
+# ==========================================
+# Large Datasets (DO NOT COMMIT - 2GB+)
+# ==========================================
+# GTSRB full images
+data/gtsrb/train/
+data/gtsrb/test/
+data/gtsrb/Train/
+data/gtsrb/Test/
+data/gtsrb/*.png
+data/gtsrb/Meta/*.png
+data/gtsrb/meta/*.png
+
+# Vietnamese Traffic Signs (main dataset)
+data/vietnamese_traffic_signs/train_data/images/
+data/vietnamese_traffic_signs/train_data/labels/
+data/vietnamese_traffic_signs/train_data/*.png
+
+# YOLO format traffic signs
+data/traffic_signs_yolo/ts/
+data/traffic_signs_yolo/*.jpg
+data/traffic_signs_yolo/*.png
+
+# Any other heavy image folders
+data/**/images/
+data/**/labels/
+data/**/Train/
+data/**/train/
+data/**/test/
+data/**/Test/
+
+# Keep only metadata, READMEs, yaml, csv headers, and small files in data/
+
+# ==========================================
+# Trained models & large binaries
+# ==========================================
+*.pt
+!models/best.pt
+*.pth
+*.onnx
+*.engine
+*.trt
+*.tflite
+*.weights
+*.pb
+
+# ==========================================
+# Training outputs & logs
+# ==========================================
+runs/
+wandb/
+mlruns/
+logs/
+*.log
+results*.csv
+confusion_matrix.png
+*.png
+*.jpg
+
+# ==========================================
+# Python
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# ==========================================
+# IDE / Editor
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ==========================================
+# OS
+# ==========================================
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# Jupyter
+# ==========================================
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+
+# ==========================================
+# Temporary / generated
+# ==========================================
+*.tmp
+*.temp
+output/
+outputs/
+annotated_*.mp4
+tsr_demo_output.mp4
+research/assets/videos/
+research/assets/**/*.mp4
+
+# Keep useful sample videos in videos/ (small ones)
+# Uncomment below if you want to ignore all videos:
+# videos/*.mp4
+# videos/*.avi
+
+# ==========================================
+# Kaggle / Colab specific
+# ==========================================
+kaggle.json
+*.zip
+
+# ==========================================
+# Keep these important files (even if in ignored patterns)
+# ==========================================
+!data/*/README.md
+!data/*/data.yaml
+!data/*/custom_data.yaml
+!data/*/*.yaml
+!data/*/*.csv
+!data/*/*.names
+!data/*/*.txt
+!data/*/*.cfg
+!data/getting-full-path.py
+!notebooks/*.ipynb
+!visuals/*.html
+!visuals/*.md
+!code/*.py
+!*.md
+!requirements*.txt
+!LICENSE
+!*.gitignore

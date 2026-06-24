@@ -1,0 +1,16 @@
+name: adas-tsr
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pytorch::pytorch
+  - pytorch::torchvision
+  - pytorch::cpuonly
+  - jupyterlab
+  - ipykernel
+  - nbformat
+  - nbconvert
+  - pip:
+      - -r requirements.txt
