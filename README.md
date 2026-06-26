@@ -221,6 +221,70 @@ All examples below assume you are at the repo root and have already activated th
 | [research/assets/diagrams/tsr_production_ecu_architecture.html](research/assets/diagrams/tsr_production_ecu_architecture.html) | Interactive ECU architecture diagram (Part II) |
 | [research/sources.md](research/sources.md) | References and provenance |
 
+## 11. Publish docs with MkDocs + GitHub Pages
+
+This repo is set up so the existing Markdown can be published as a documentation website with `MkDocs Material`.
+
+### Docs source layout
+
+- `docs/index.md` is a symlink to `README.md`
+- `docs/research/` is a symlink to `research/`
+- `docs/code/tsr_demo.py` is a symlink to `code/tsr_demo.py`
+- `docs/videos/README.md` is a symlink to `videos/README.md`
+- `mkdocs.yml` defines the navigation, theme, and Mermaid rendering
+
+Edit the original files as usual under `README.md`, `research/`, `code/`, and `videos/`. The docs site will reuse them directly.
+
+### Install docs dependencies
+
+```bash
+cd adas-tsr
+pip install -r requirements-docs.txt
+```
+
+### Serve locally
+
+```bash
+cd adas-tsr
+mkdocs serve
+```
+
+Local preview:
+
+```text
+http://127.0.0.1:8000
+```
+
+### Build static site
+
+```bash
+cd adas-tsr
+mkdocs build
+```
+
+Generated output goes to:
+
+```text
+site/
+```
+
+### Deploy to GitHub Pages
+
+Manual deployment:
+
+```bash
+cd adas-tsr
+mkdocs gh-deploy
+```
+
+This repo also includes `.github/workflows/docs.yml` so pushes to `main` or `master` can publish the docs automatically via GitHub Pages Actions.
+
+Expected Pages URL pattern:
+
+```text
+https://<github-username>.github.io/adas-tsr/
+```
+
 ## 11. Troubleshooting
 
 | Issue | What to check |

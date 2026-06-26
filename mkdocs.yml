@@ -1,0 +1,61 @@
+site_name: TSR for ADAS
+site_description: Traffic Sign Recognition research and baseline documentation
+docs_dir: docs
+site_dir: site
+use_directory_urls: false
+
+theme:
+  name: material
+  language: vi
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - toc.follow
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Research:
+      - Unified Report: research/1.research_tsr_three_part_unified.md
+      - Baseline Analysis: research/2.research_tsr_baseline_analysis.md
+      - Detector Architecture: research/3.research_tsr_detection_architecture_research.md
+      - System Diagram: research/diagram.md
+      - Slide Notes: research/slide.md
+      - Sources: research/sources.md
+  - Videos: videos/README.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_div_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+extra_javascript:
+  - https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js
+  - javascripts/mermaid.js

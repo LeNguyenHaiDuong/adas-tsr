@@ -115,6 +115,7 @@ Thumbs.db
 # ==========================================
 *.tmp
 *.temp
+site/
 output/
 outputs/
 annotated_*.mp4
