@@ -118,7 +118,20 @@ mkdir -p videos
 curl -L https://download.samplelib.com/mp4/sample-5s.mp4 -o videos/smoke_test.mp4
 ```
 
-### Option C — Download a public road video manually
+### Option C — Download the shared demo video from Google Drive
+
+Shared demo video:
+
+- https://drive.google.com/file/d/1jvMYLCpHR8tJc-bLMggJFDf55-uaAcx_/view?usp=drive_link
+
+If you use `gdown`:
+
+```bash
+mkdir -p videos
+gdown --fuzzy "https://drive.google.com/file/d/1jvMYLCpHR8tJc-bLMggJFDf55-uaAcx_/view?usp=drive_link" -O videos/drive_demo_video.mp4
+```
+
+### Option D — Download a public road video manually
 
 Use any front-facing driving video and place it under `videos/`, for example:
 
