@@ -9,6 +9,8 @@ This repository is intentionally kept small and deployment-oriented:
 - model weights: `models/best.pt`
 - local input/output videos: `videos/`
 
+> **Editorial scope:** `README.md` là entrypoint vận hành repo: setup, chạy demo, input/output video và publish docs. Narrative hệ thống TSR, gap production và các deep-dive nghiên cứu nằm trong `research/`.
+
 ## 1. What this repo is for
 
 This repo is for:
@@ -226,13 +228,19 @@ All examples below assume you are at the repo root and have already activated th
 
 ## 10. Research documents
 
-| Document | Focus |
-|---|---|
-| [research/1.research_tsr_three_part_unified.md](research/1.research_tsr_three_part_unified.md) | **(1)** Main report (3 parts): system design, production pipeline, baseline demo |
-| [research/2.research_tsr_baseline_analysis.md](research/2.research_tsr_baseline_analysis.md) | **(2)** `tsr_demo.py` + `best.pt`: coverage, dataset, gaps → concrete weaknesses |
-| [research/3.research_tsr_detection_architecture_research.md](research/3.research_tsr_detection_architecture_research.md) | **(3)** Detector architecture: anchor, neck, NMS, small-object theory, datasets, edge deployment (ONNX/TRT/OpenVINO/INT8), OCR, uncertainty |
-| [research/assets/diagrams/tsr_production_ecu_architecture.html](research/assets/diagrams/tsr_production_ecu_architecture.html) | Interactive ECU architecture diagram (Part II) |
-| [research/sources.md](research/sources.md) | References and provenance |
+`README.md` không kể lại toàn bộ câu chuyện production. Thứ tự đọc khuyến nghị trong `research/` là:
+
+| Order | Document | Focus |
+|---|---|---|
+| **0** | [research/0.requirements.md](research/0.requirements.md) | Brief và yêu cầu gốc của bài tập |
+| **1** | [research/1.research_tsr_three_part_unified.md](research/1.research_tsr_three_part_unified.md) | Narrative chính: problem framing, production mindset, gap baseline, roadmap |
+| **2** | [research/2.research_tsr_baseline_analysis.md](research/2.research_tsr_baseline_analysis.md) | Annex gắn repo: `tsr_demo.py`, `best.pt`, runtime, gap implementation |
+| **3** | [research/3.research_tsr_detection_architecture_research.md](research/3.research_tsr_detection_architecture_research.md) | Deep-dive detector: anchor, neck, NMS, small-object, dataset, edge deploy |
+| **4** | [research/4.research_tsr_colab_production_lite_demo.md](research/4.research_tsr_colab_production_lite_demo.md) | Production-lite Colab notebook: stateful replay, JSONL, quality/ODD gate |
+| **5** | [research/diagram.md](research/diagram.md) | Visual appendix và glossary ngắn cho architecture blocks |
+| **6** | [research/slide.md](research/slide.md) | Slide deck dẫn xuất cho thuyết trình, không phải source-of-truth |
+| **7** | [research/sources.md](research/sources.md) | References và provenance |
+| — | [research/assets/diagrams/tsr_production_ecu_architecture.html](research/assets/diagrams/tsr_production_ecu_architecture.html) | Interactive ECU architecture diagram (Part II) |
 
 ## 11. Publish docs with MkDocs + GitHub Pages
 
@@ -298,7 +306,7 @@ Expected Pages URL pattern:
 https://<github-username>.github.io/adas-tsr/
 ```
 
-## 11. Troubleshooting
+## 12. Troubleshooting
 
 | Issue | What to check |
 |---|---|
@@ -308,7 +316,7 @@ https://<github-username>.github.io/adas-tsr/
 | Missing model file | Download `models/best.pt` manually or let the script fetch it. |
 | GUI does not open in WSL | Use `--no-display` and inspect the output video file instead. |
 
-## 12. Notes for Git and large files
+## 13. Notes for Git and large files
 
 - large training datasets should stay outside Git;
 - input/output videos are managed locally unless you explicitly choose to version them;

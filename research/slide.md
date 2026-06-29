@@ -1,6 +1,19 @@
 # Phát triển hệ thống Traffic Sign Recognition (TSR) cơ bản
 ## Phần 1 — Tổng quan, vai trò trong ADAS, bài toán và phạm vi
 
+> **Thứ tự đọc:** 6 — slide deck dẫn xuất, dùng sau khi narrative chính đã ổn trong `research/1...`.  
+> **File này trả lời:** nên trình bày câu chuyện TSR cho buổi thuyết trình như thế nào.  
+> **Ngoài phạm vi:** làm source-of-truth cho production architecture hoặc baseline analysis. Hãy sửa `research/1...`, `research/2...`, `research/3...`, `research/4...` trước rồi mới đồng bộ deck này.
+
+## Bản đồ nguồn cho deck
+
+| Chủ đề trong slide | File nguồn chính |
+|---|---|
+| Story hệ thống, production mindset, roadmap | [1.research_tsr_three_part_unified.md](1.research_tsr_three_part_unified.md) |
+| Evidence repo, runtime, gap implementation | [2.research_tsr_baseline_analysis.md](2.research_tsr_baseline_analysis.md) |
+| Detector trade-off, small object, edge deploy | [3.research_tsr_detection_architecture_research.md](3.research_tsr_detection_architecture_research.md) |
+| Production-lite Colab replay | [4.research_tsr_colab_production_lite_demo.md](4.research_tsr_colab_production_lite_demo.md) |
+
 ---
 
 # Slide 1

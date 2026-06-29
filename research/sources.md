@@ -1,12 +1,21 @@
 # Sources & Research Provenance — TSR
 
+> **Thứ tự đọc:** 7 — appendix provenance, không phải narrative chính.  
+> **File này trả lời:** các nhận định trong bộ research dựa trên nguồn nào.  
+> **Ngoài phạm vi:** giải thích hệ thống TSR hay baseline repo; xem `1.research_tsr_three_part_unified.md`, `2.research_tsr_baseline_analysis.md`, `3.research_tsr_detection_architecture_research.md`, `4.research_tsr_colab_production_lite_demo.md`.
+
 ## 1. Nội bộ repo `adas-tsr`
 
 - Script inference chính: `code/tsr_demo.py`
+- **(0)** Brief đầu bài: [0.requirements.md](0.requirements.md)
 - **(1)** Tài liệu tổng (3 phần): [1.research_tsr_three_part_unified.md](1.research_tsr_three_part_unified.md)
 - **(2)** Baseline gắn code: [2.research_tsr_baseline_analysis.md](2.research_tsr_baseline_analysis.md)
 - **(3)** Nghiên cứu kiến trúc detector + edge deployment: [3.research_tsr_detection_architecture_research.md](3.research_tsr_detection_architecture_research.md)
+- **(4)** Notebook production-lite: [4.research_tsr_colab_production_lite_demo.md](4.research_tsr_colab_production_lite_demo.md)
+- Visual appendix: [diagram.md](diagram.md)
+- Slide deck dẫn xuất: [slide.md](slide.md)
 - Notebook tái lập nhẹ: [notebooks/tsr_research_workflow.ipynb](notebooks/tsr_research_workflow.ipynb)
+- Notebook Colab production-lite: [notebooks/tsr_colab_production_lite_demo.ipynb](notebooks/tsr_colab_production_lite_demo.ipynb)
 
 ## 2. Model và công cụ chính
 

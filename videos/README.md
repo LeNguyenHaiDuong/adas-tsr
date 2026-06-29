@@ -1,5 +1,9 @@
 # Videos Folder
 
+> **Vai trò file này:** note vận hành cho thư mục `videos/`.  
+> **Dành cho ai:** người chạy demo local và lưu output video.  
+> **Ngoài phạm vi:** setup repo và research narrative; xem `README.md` và `research/`.
+
 This folder is for local input and output videos.
 
 Recommended usage:

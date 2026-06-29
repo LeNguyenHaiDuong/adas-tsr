@@ -22,9 +22,11 @@ plugins:
 nav:
   - Home: index.md
   - Research:
+      - Requirements Brief: research/0.requirements.md
       - Unified Report: research/1.research_tsr_three_part_unified.md
       - Baseline Analysis: research/2.research_tsr_baseline_analysis.md
       - Detector Architecture: research/3.research_tsr_detection_architecture_research.md
+      - Colab Production-Lite Demo: research/4.research_tsr_colab_production_lite_demo.md
       - System Diagram: research/diagram.md
       - Slide Notes: research/slide.md
       - Sources: research/sources.md
