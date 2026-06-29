@@ -16,6 +16,17 @@ Kiến trúc TSR (Traffic Sign Recognition) trong hệ thống ADAS production t
    - Tích hợp với các ECU khác trên xe.
    - Cung cấp thông tin cho HMI, ISA, Diagnostics và Data Logging.
 
+## Legend màu Mermaid
+
+> Legend này áp dụng cho sơ đồ Mermaid trong file này.
+
+| Màu | Vai trò | Ý nghĩa |
+|---|---|---|
+| <span style="display:inline-block;width:14px;height:14px;border:1px solid #2F66D0;background:#EDF3FF;"></span> | `feature` | Perception, context, fusion, hoặc processing core của TSR |
+| <span style="display:inline-block;width:14px;height:14px;border:1px solid #7C3AED;background:#F4ECFF;"></span> | `temporal` | Tracking, temporal confirmation, hoặc state-oriented block |
+| <span style="display:inline-block;width:14px;height:14px;border:1px solid #14866D;background:#EAF7F2;"></span> | `source` | Sensor hoặc input source đi vào kiến trúc |
+| <span style="display:inline-block;width:14px;height:14px;border:1px solid #1E8E5A;background:#E8F7EE;"></span> | `integration` | Output HMI, ISA, diagnostics, logging, hoặc đầu ra hệ thống |
+
 ---
 
 ## TSR Architecture Diagram
@@ -134,6 +145,15 @@ ISA --> POWERTRAIN["Vehicle Control Functions"]
 DIAG --> SERVICE["Service Tool"]
 
 LOG --> CLOUD["Telematics / OTA Backend"]
+
+classDef source fill:#EAF7F2,stroke:#14866D,color:#0F4C3F,stroke-width:2px;
+classDef feature fill:#EDF3FF,stroke:#2F66D0,color:#173B7A,stroke-width:2px;
+classDef temporal fill:#F4ECFF,stroke:#7C3AED,color:#4C1D95,stroke-width:2px;
+classDef integration fill:#E8F7EE,stroke:#1E8E5A,color:#14532D,stroke-width:2px;
+class CAM,MAP,SAS,ESC,CFG source;
+class PRE,DET,CLS,CTX,LANE,FUSION feature;
+class TRK,TMP,STATE temporal;
+class HMI,ISA,DIAG,LOG,CLUSTER,POWERTRAIN,SERVICE,CLOUD integration;
 ```
 
 ---
