@@ -250,11 +250,11 @@ This repo is set up so the existing Markdown can be published as a documentation
 
 - `docs/index.md` is a symlink to `README.md`
 - `docs/research/` is a symlink to `research/`
-- `docs/code/tsr_demo.py` is a symlink to `code/tsr_demo.py`
 - `docs/videos/README.md` is a symlink to `videos/README.md`
+- `docs/javascripts/mermaid.js` initializes Mermaid rendering for the published site
 - `mkdocs.yml` defines the navigation, theme, and Mermaid rendering
 
-Edit the original files as usual under `README.md`, `research/`, `code/`, and `videos/`. The docs site will reuse them directly.
+Edit the original files as usual under `README.md`, `research/`, `code/`, and `videos/`. The docs site will reuse the Markdown sources directly.
 
 ### Install docs dependencies
 
@@ -288,6 +288,8 @@ Generated output goes to:
 ```text
 site/
 ```
+
+This folder is generated output only. It is safe to delete and rebuild with `mkdocs build`.
 
 ### Deploy to GitHub Pages
 
