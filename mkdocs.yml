@@ -23,13 +23,34 @@ nav:
   - Home: index.md
   - Research:
       - Requirements Brief: research/0.requirements.md
-      - Unified Report: research/1.research_tsr_three_part_unified.md
-      - Baseline Analysis: research/2.research_tsr_baseline_analysis.md
-      - Detector Architecture: research/3.research_tsr_detection_architecture_research.md
-      - Colab Production-Lite Demo: research/4.research_tsr_colab_production_lite_demo.md
-      - System Diagram: research/diagram.md
-      - Slide Notes: research/slide.md
-      - Sources: research/sources.md
+      - Narrative:
+          - Prototype to Production: research/1.narrative/01.prototype_to_production.md
+      - Knowledge Base:
+          - Index: research/2.knowledge_base/00.index.md
+          - TSR Feature Architecture: research/2.knowledge_base/01.tsr_feature_architecture.md
+          - State Manager and Sign Lifecycle: research/2.knowledge_base/02.state_manager_and_sign_lifecycle.md
+          - ODD for TSR: research/2.knowledge_base/03.odd_for_tsr.md
+          - SOTIF for TSR: research/2.knowledge_base/04.sotif_for_tsr.md
+          - Verification, Validation, and Release: research/2.knowledge_base/05.verification_validation_and_release.md
+          - HMI, Diagnostics, and Vehicle Interface: research/2.knowledge_base/06.hmi_diagnostics_and_vehicle_interface.md
+          - Detector Architecture Overview: research/2.knowledge_base/07.detector_architecture_overview.md
+          - Dataset and Benchmark Guide: research/2.knowledge_base/08.dataset_and_benchmark_guide.md
+          - Glossary: research/2.knowledge_base/09.glossary.md
+          - System Diagram: research/2.knowledge_base/10.system_diagram.md
+          - Sources and Provenance: research/2.knowledge_base/11.sources_and_provenance.md
+          - Unified Production Reference: research/2.knowledge_base/12.unified_production_reference.md
+          - Detector Architecture Deep Reference: research/2.knowledge_base/13.detector_architecture_deep_reference.md
+      - Implementation:
+          - Index: research/3.implementation/00.index.md
+          - Baseline Repo Analysis: research/3.implementation/01.baseline_repo_analysis.md
+          - Colab Production-Lite Demo: research/3.implementation/02.colab_production_lite_demo.md
+          - Experiment and Benchmark Guide: research/3.implementation/03.experiment_benchmark_guide.md
+          - Baseline Repo Analysis Extended: research/3.implementation/04.baseline_repo_analysis_full.md
+          - Colab Production-Lite Demo Extended: research/3.implementation/05.colab_production_lite_demo_full.md
+      - Presentation:
+          - Slide Storyboard: research/4.presentation/01.slide_storyboard.md
+          - Slide Deck: research/4.presentation/02.slide_deck.md
+          - Slide Deck Extended: research/4.presentation/03.slide_deck_full_reference.md
   - Videos: videos/README.md
 
 markdown_extensions:

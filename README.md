@@ -31,8 +31,12 @@ This repo is not for:
 |---|---|
 | `code/tsr_demo.py` | Main inference script. |
 | `models/best.pt` | Baseline model weights for 82 Vietnam traffic sign classes. |
-| `research/` | Report-style research and system-design documents. |
-| `research/notebooks/` | Lightweight reproducibility notebook for local replay and analysis. |
+| `research/1.narrative/` | Source-of-truth narrative for the TSR story from prototype to production. |
+| `research/2.knowledge_base/` | Knowledge Base for deep technical topics such as state manager, ODD, SOTIF, detector trade-offs. |
+| `research/3.implementation/` | Repo-facing analysis, Colab demo, experiment and benchmark guidance. |
+| `research/4.presentation/` | Slide storyboard and presentation-facing material. |
+| `research/3.implementation/*.ipynb` | Lightweight reproducibility notebooks and Colab demo artifacts. |
+| `research/0.requirements.md` | Brief gốc của đề tài, đọc trước toàn bộ các layer đã đánh số. |
 | `videos/` | Local input and output videos. This folder is user-managed; sample/output videos are not required to be versioned. |
 | `run_demo.sh` | Convenience script to set up the environment and run inference. |
 | `requirements.txt` | Python package requirements beyond the base PyTorch install. |
@@ -228,19 +232,24 @@ All examples below assume you are at the repo root and have already activated th
 
 ## 10. Research documents
 
-`README.md` không kể lại toàn bộ câu chuyện production. Thứ tự đọc khuyến nghị trong `research/` là:
+`README.md` không kể lại toàn bộ câu chuyện TSR. Thứ tự đọc khuyến nghị trong `research/` là:
 
 | Order | Document | Focus |
 |---|---|---|
 | **0** | [research/0.requirements.md](research/0.requirements.md) | Brief và yêu cầu gốc của bài tập |
-| **1** | [research/1.research_tsr_three_part_unified.md](research/1.research_tsr_three_part_unified.md) | Narrative chính: problem framing, production mindset, gap baseline, roadmap |
-| **2** | [research/2.research_tsr_baseline_analysis.md](research/2.research_tsr_baseline_analysis.md) | Annex gắn repo: `tsr_demo.py`, `best.pt`, runtime, gap implementation |
-| **3** | [research/3.research_tsr_detection_architecture_research.md](research/3.research_tsr_detection_architecture_research.md) | Deep-dive detector: anchor, neck, NMS, small-object, dataset, edge deploy |
-| **4** | [research/4.research_tsr_colab_production_lite_demo.md](research/4.research_tsr_colab_production_lite_demo.md) | Production-lite Colab notebook: stateful replay, JSONL, quality/ODD gate |
-| **5** | [research/diagram.md](research/diagram.md) | Visual appendix và glossary ngắn cho architecture blocks |
-| **6** | [research/slide.md](research/slide.md) | Slide deck dẫn xuất cho thuyết trình, không phải source-of-truth |
-| **7** | [research/sources.md](research/sources.md) | References và provenance |
-| — | [research/assets/diagrams/tsr_production_ecu_architecture.html](research/assets/diagrams/tsr_production_ecu_architecture.html) | Interactive ECU architecture diagram (Part II) |
+| **1** | [research/1.narrative/01.prototype_to_production.md](research/1.narrative/01.prototype_to_production.md) | Narrative chính: từ problem -> prototype -> production -> gap -> roadmap |
+| **2** | [research/2.knowledge_base/00.index.md](research/2.knowledge_base/00.index.md) | Knowledge Base index cho feature architecture, state, ODD, SOTIF, detector và dataset |
+| **3** | [research/3.implementation/00.index.md](research/3.implementation/00.index.md) | Entry point cho baseline analysis, Colab demo và benchmark guidance |
+| **4** | [research/4.presentation/01.slide_storyboard.md](research/4.presentation/01.slide_storyboard.md) | Storyboard source-of-truth cho deck 20–25 phút |
+| **5** | [research/2.knowledge_base/09.glossary.md](research/2.knowledge_base/09.glossary.md) | Glossary và thuật ngữ thống nhất |
+| **Extended** | [research/2.knowledge_base/12.unified_production_reference.md](research/2.knowledge_base/12.unified_production_reference.md) | Tài liệu production mở rộng |
+| **Extended** | [research/3.implementation/04.baseline_repo_analysis_full.md](research/3.implementation/04.baseline_repo_analysis_full.md) | Phân tích baseline chi tiết gắn code |
+| **Extended** | [research/2.knowledge_base/13.detector_architecture_deep_reference.md](research/2.knowledge_base/13.detector_architecture_deep_reference.md) | Deep dive về detector và edge deployment |
+| **Extended** | [research/3.implementation/05.colab_production_lite_demo_full.md](research/3.implementation/05.colab_production_lite_demo_full.md) | Tài liệu notebook production-lite chi tiết |
+| **Extended** | [research/2.knowledge_base/10.system_diagram.md](research/2.knowledge_base/10.system_diagram.md) | Sơ đồ hệ thống và appendix trực quan |
+| **Extended** | [research/4.presentation/03.slide_deck_full_reference.md](research/4.presentation/03.slide_deck_full_reference.md) | Bản slide chi tiết để tham khảo |
+| **Extended** | [research/2.knowledge_base/11.sources_and_provenance.md](research/2.knowledge_base/11.sources_and_provenance.md) | Nguồn trích dẫn và provenance |
+| — | [research/assets/diagrams/tsr_production_ecu_architecture.html](research/assets/diagrams/tsr_production_ecu_architecture.html) | Interactive ECU architecture diagram |
 
 ## 11. Publish docs with MkDocs + GitHub Pages
 
