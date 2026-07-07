@@ -33,9 +33,10 @@ class SignTrack:
         self.hits = 1
 
 class SignTracker:
-    def __init__(self, iou_threshold: float = 0.3, max_lost: int = 3):
+    def __init__(self, iou_threshold: float = 0.3, max_lost: int = 3, min_hits: int = 1):
         self.iou_threshold = iou_threshold
         self.max_lost = max_lost
+        self.min_hits = min_hits
         self.next_id = 1
         self.tracks: List[SignTrack] = []
 
@@ -57,7 +58,6 @@ class SignTracker:
                     continue
                 
                 # Check class match: only match tracks with the same or similar class key
-                # This prevents a speed limit sign track from suddenly matching a stop sign
                 if track.key != det[7]:
                     continue
                     
@@ -103,8 +103,10 @@ class SignTracker:
         # Format results: return currently visible or active tracked signs
         results = []
         for track in self.tracks:
-            results.append((
-                track.bbox[0], track.bbox[1], track.bbox[2], track.bbox[3],
-                track.label, track.color, track.conf, track.key, track.track_id
-            ))
+            # Temporal filter: Only output tracks that have been detected at least min_hits times
+            if track.hits >= self.min_hits:
+                results.append((
+                    track.bbox[0], track.bbox[1], track.bbox[2], track.bbox[3],
+                    track.label, track.color, track.conf, track.key, track.track_id
+                ))
         return results

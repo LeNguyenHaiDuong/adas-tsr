@@ -30,11 +30,27 @@ DEFAULT_VIDEO = ROOT / "videos" / "traffic_sign_test.mp4"
 VN_HF_REPO = "star092304/traffic-sign-detection-vietnam-yolo"
 
 
-def preprocess(frame: np.ndarray, max_width: int = 960) -> np.ndarray:
+def apply_clahe(frame: np.ndarray) -> np.ndarray:
+    # Convert BGR to LAB color space
+    lab = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
+    l, a, b = cv2.split(lab)
+    
+    # Apply CLAHE to L (lightness) channel
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    cl = clahe.apply(l)
+    
+    # Merge channels and convert back to BGR
+    limg = cv2.merge((cl, a, b))
+    return cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
+
+
+def preprocess(frame: np.ndarray, max_width: int = 960, clahe: bool = False) -> np.ndarray:
     h, w = frame.shape[:2]
     if w > max_width:
         scale = max_width / float(w)
         frame = cv2.resize(frame, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_LINEAR)
+    if clahe:
+        frame = apply_clahe(frame)
     return frame
 
 
@@ -84,6 +100,30 @@ def scale_detections(dets: List, from_shape: tuple, to_shape: tuple) -> List:
     return scaled
 
 
+def filter_by_roi(dets: List, frame_shape: Tuple[int, int]) -> List:
+    if not dets:
+        return dets
+    h, w = frame_shape[:2]
+    filtered = []
+    for det in dets:
+        x1, y1, x2, y2 = det[:4]
+        cx = (x1 + x2) / 2
+        cy = (y1 + y2) / 2
+        
+        # 1. Filter out bottom 15% (dashboard/bonnet)
+        if cy > h * 0.85:
+            continue
+        # 2. Filter out top 5% (extreme sky)
+        if cy < h * 0.05:
+            continue
+        # 3. Filter out immediate center bottom (road lanes directly in front of the car)
+        if (w * 0.30 < cx < w * 0.70) and (cy > h * 0.70):
+            continue
+            
+        filtered.append(det)
+    return filtered
+
+
 def resolve_weights(weights: Path) -> Path:
     if weights.is_file():
         return weights
@@ -109,7 +149,7 @@ def resolve_source(source: str):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="TSR Inference Demo (YOLO .pt & Tracking)")
+    parser = argparse.ArgumentParser(description="TSR Inference Demo (YOLO .pt & Tracking & Lvl 2 Filters)")
     parser.add_argument("--source", type=str, default=str(DEFAULT_VIDEO), help="Video path hoặc camera index")
     parser.add_argument("--output", type=str, default=str(ROOT / "videos" / "tsr_demo_output.mp4"), help="Video annotated output")
     parser.add_argument("--weights", type=str, default=str(DEFAULT_WEIGHTS), help="Đường dẫn file .pt")
@@ -121,6 +161,9 @@ def main():
     parser.add_argument("--traditional", action="store_true", help="Bật thêm nhánh CV truyền thống")
     parser.add_argument("--no-display", action="store_true", help="Headless mode")
     parser.add_argument("--no-tracker", action="store_true", help="Tắt tính năng theo vết đối tượng (Tracker)")
+    parser.add_argument("--clahe", action="store_true", help="Bật cân bằng sáng thích ứng CLAHE để cải thiện độ tương phản")
+    parser.add_argument("--roi-filter", action="store_true", help="Bật lọc tọa độ vùng quan tâm ROI để loại bỏ nhiễu mặt đường/táp-lô")
+    parser.add_argument("--min-hits", type=int, default=1, help="Số frame nhận diện liên tiếp tối thiểu để hiển thị biển báo (default: 1)")
     args = parser.parse_args()
 
     weights = resolve_weights(Path(args.weights))
@@ -168,10 +211,16 @@ def main():
     trad_detector = TraditionalDetector() if args.traditional else None
     
     # Initialize tracker
-    tracker = None if args.no_tracker else SignTracker(max_lost=args.hold)
+    tracker = None if args.no_tracker else SignTracker(max_lost=args.hold, min_hits=args.min_hits)
 
     logger.info(f"Config: conf={args.conf} | imgsz={args.imgsz}")
-    logger.info(f"Nguồn: {args.source} | Traditional={'ON' if args.traditional else 'OFF'} | Tracker={'OFF' if args.no_tracker else 'ON'}")
+    logger.info(
+        f"Nguồn: {args.source} | "
+        f"Traditional={'ON' if args.traditional else 'OFF'} | "
+        f"Tracker={'OFF' if args.no_tracker else f'ON (min-hits={args.min_hits})'} | "
+        f"CLAHE={'ON' if args.clahe else 'OFF'} | "
+        f"ROI-Filter={'ON' if args.roi_filter else 'OFF'}"
+    )
 
     frame_idx = 0
     fps_smooth = 0.0
@@ -195,9 +244,9 @@ def main():
         run_inference = args.skip <= 0 or (frame_idx % (args.skip + 1) == 1)
         detections = []
 
-        # 1. Preprocessing
+        # 1. Preprocessing (includes optional CLAHE)
         t_start = time.time()
-        proc_frame = preprocess(frame, max_width=args.max_width)
+        proc_frame = preprocess(frame, max_width=args.max_width, clahe=args.clahe)
         t_prep = time.time() - t_start
         total_prep_time += t_prep
 
@@ -216,6 +265,11 @@ def main():
             
             # Scale boxes from proc_frame back to original resolution
             scaled_dets = scale_detections(yolo_dets, proc_frame.shape, frame.shape)
+            
+            # Apply ROI-Filter if enabled
+            if args.roi_filter:
+                scaled_dets = filter_by_roi(scaled_dets, frame.shape)
+                
             t_post = time.time() - t_post_start
             total_post_time += t_post
 
