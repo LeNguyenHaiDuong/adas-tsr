@@ -57,11 +57,11 @@ class YOLODetector(BaseDetector):
         self.imgsz = imgsz
 
     def detect(self, frame: np.ndarray) -> Detections:
-        # Run inference using the YOLO model
+        # Run inference using a lower threshold (min 0.05) to let tracker associate low confidence detections
         results = self.model(
             frame, 
             imgsz=self.imgsz, 
-            conf=self.conf_thres, 
+            conf=min(0.05, self.conf_thres), 
             verbose=False, 
             max_det=20
         )[0]

@@ -33,10 +33,11 @@ class SignTrack:
         self.hits = 1
 
 class SignTracker:
-    def __init__(self, iou_threshold: float = 0.3, max_lost: int = 3, min_hits: int = 1):
+    def __init__(self, iou_threshold: float = 0.3, max_lost: int = 3, min_hits: int = 1, conf_threshold: float = 0.15):
         self.iou_threshold = iou_threshold
         self.max_lost = max_lost
         self.min_hits = min_hits
+        self.conf_threshold = conf_threshold
         self.next_id = 1
         self.tracks: List[SignTrack] = []
 
@@ -44,49 +45,87 @@ class SignTracker:
         # input detections format: (x1, y1, x2, y2, label, color, conf, key)
         # returns format: (x1, y1, x2, y2, label, color, conf, key, track_id)
         
-        updated_tracks: List[SignTrack] = []
-        matched_detections = set()
+        # Split detections into high and low confidence groups (BYTETrack style)
+        high_dets = []
+        low_dets = []
+        for det in detections:
+            if det[6] >= self.conf_threshold:
+                high_dets.append(det)
+            else:
+                low_dets.append(det)
+        
+        matched_high_idx = set()
+        matched_low_idx = set()
+        matched_tracks = set()
         
         # Sort existing tracks to process those with lower lost_count first (more reliable)
         self.tracks.sort(key=lambda t: t.lost_count)
         
+        # 1. First association: Match active tracks with high confidence detections
         for track in self.tracks:
             best_iou = 0.0
             best_idx = -1
-            for idx, det in enumerate(detections):
-                if idx in matched_detections:
+            for idx, det in enumerate(high_dets):
+                if idx in matched_high_idx:
                     continue
-                
-                # Check class match: only match tracks with the same or similar class key
                 if track.key != det[7]:
                     continue
-                    
-                det_bbox = det[:4]
-                iou = compute_iou(track.bbox, det_bbox)
+                iou = compute_iou(track.bbox, det[:4])
                 if iou > best_iou:
                     best_iou = iou
                     best_idx = idx
             
             if best_iou >= self.iou_threshold and best_idx != -1:
-                # Match found: update existing track with new detection info
-                det = detections[best_idx]
+                det = high_dets[best_idx]
                 track.bbox = det[:4]
                 track.label = det[4]
                 track.color = det[5]
                 track.conf = det[6]
                 track.lost_count = 0
                 track.hits += 1
-                matched_detections.add(best_idx)
-                updated_tracks.append(track)
-            else:
-                # No match: increment lost count
+                matched_high_idx.add(best_idx)
+                matched_tracks.add(track)
+
+        # 2. Second association: Match remaining unmatched tracks with low confidence detections
+        for track in self.tracks:
+            if track in matched_tracks:
+                continue
+            best_iou = 0.0
+            best_idx = -1
+            for idx, det in enumerate(low_dets):
+                if idx in matched_low_idx:
+                    continue
+                if track.key != det[7]:
+                    continue
+                iou = compute_iou(track.bbox, det[:4])
+                if iou > best_iou:
+                    best_iou = iou
+                    best_idx = idx
+            
+            if best_iou >= self.iou_threshold and best_idx != -1:
+                det = low_dets[best_idx]
+                track.bbox = det[:4]
+                track.label = det[4]
+                track.color = det[5]
+                track.conf = det[6]
+                track.lost_count = 0
+                track.hits += 1
+                matched_low_idx.add(best_idx)
+                matched_tracks.add(track)
+
+        # Update lifecycle of tracks: keep matched ones, increment lost count for unmatched ones
+        updated_tracks = []
+        for track in self.tracks:
+            if track not in matched_tracks:
                 track.lost_count += 1
                 if track.lost_count <= self.max_lost:
                     updated_tracks.append(track)
+            else:
+                updated_tracks.append(track)
                     
-        # Register remaining unmatched detections as new tracks
-        for idx, det in enumerate(detections):
-            if idx not in matched_detections:
+        # 3. Create new tracks from unmatched high confidence detections ONLY
+        for idx, det in enumerate(high_dets):
+            if idx not in matched_high_idx:
                 new_track = SignTrack(
                     track_id=self.next_id,
                     bbox=det[:4],

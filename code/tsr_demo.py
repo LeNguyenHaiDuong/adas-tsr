@@ -211,7 +211,7 @@ def main():
     trad_detector = TraditionalDetector() if args.traditional else None
     
     # Initialize tracker
-    tracker = None if args.no_tracker else SignTracker(max_lost=args.hold, min_hits=args.min_hits)
+    tracker = None if args.no_tracker else SignTracker(max_lost=args.hold, min_hits=args.min_hits, conf_threshold=args.conf)
 
     logger.info(f"Config: conf={args.conf} | imgsz={args.imgsz}")
     logger.info(
@@ -278,10 +278,12 @@ def main():
             if tracker is not None:
                 detections = tracker.update(scaled_dets)
             else:
+                # Filter out detections below conf threshold when tracker is disabled
+                filtered_dets = [d for d in scaled_dets if d[6] >= args.conf]
                 # Basic hold mechanism
-                if scaled_dets:
-                    detections = scaled_dets
-                    last_detections = scaled_dets
+                if filtered_dets:
+                    detections = filtered_dets
+                    last_detections = filtered_dets
                     hold_left = args.hold
                 elif hold_left > 0 and last_detections:
                     detections = last_detections
