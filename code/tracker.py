@@ -1,5 +1,7 @@
 from __future__ import annotations
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict, Any
+from dataclasses import dataclass
+
 
 def compute_iou(boxA: Tuple[int, int, int, int], boxB: Tuple[int, int, int, int]) -> float:
     # boxA, boxB format: (x1, y1, x2, y2)
@@ -149,3 +151,126 @@ class SignTracker:
                     track.label, track.color, track.conf, track.key, track.track_id
                 ))
         return results
+
+
+@dataclass
+class ProductionLiteTrack:
+    track_id: int
+    label: str
+    family: str
+    bbox: Tuple[int, int, int, int]
+    confidence: float
+    hit_count: int = 1
+    miss_count: int = 0
+    state: str = 'CANDIDATE'
+    speed_limit: Optional[int] = None
+    warning_level: int = 0
+    source: str = 'camera'
+
+
+class ProductionLiteTracker:
+    def __init__(
+        self,
+        assoc_iou: float = 0.20,
+        min_confirm_hits: int = 3,
+        max_candidate_misses: int = 2,
+        max_stale_misses: int = 4,
+        expire_misses: int = 6,
+        map_speed_limit_kph: Optional[int] = None,
+    ):
+        self.assoc_iou = assoc_iou
+        self.min_confirm_hits = min_confirm_hits
+        self.max_candidate_misses = max_candidate_misses
+        self.max_stale_misses = max_stale_misses
+        self.expire_misses = expire_misses
+        self.map_speed_limit_kph = map_speed_limit_kph
+        self.tracks: List[ProductionLiteTrack] = []
+        self.next_id = 1
+
+    def warning_level_for_family(self, family: str, confirmed: bool, quality_ok: bool) -> int:
+        if not confirmed or not quality_ok:
+            return 0
+        if family in {'stop', 'no_entry'}:
+            return 3
+        if family in {'speed'}:
+            return 2
+        return 1
+
+    def apply_map_fusion(self, track: ProductionLiteTrack, map_speed_limit_kph: Optional[int]) -> Tuple[str, Optional[int]]:
+        if map_speed_limit_kph is None or track.speed_limit is None:
+            return 'camera_only', track.speed_limit
+        if track.speed_limit == map_speed_limit_kph:
+            return 'agreed', track.speed_limit
+        if track.confidence >= 0.75 and track.hit_count >= self.min_confirm_hits:
+            return 'camera_override', track.speed_limit
+        return 'map_override', map_speed_limit_kph
+
+    def update(self, detections: List[Dict[str, Any]], odd_ok: bool, quality_ok: bool) -> List[ProductionLiteTrack]:
+        unmatched_det_idx = set(range(len(detections)))
+
+        for track in self.tracks:
+            best_idx = None
+            best_iou = 0.0
+            for det_idx in list(unmatched_det_idx):
+                det = detections[det_idx]
+                if det['family'] != track.family:
+                    continue
+                score = compute_iou(track.bbox, det['bbox'])
+                if score > self.assoc_iou and score > best_iou:
+                    best_idx = det_idx
+                    best_iou = score
+
+            if best_idx is not None:
+                det = detections[best_idx]
+                track.bbox = det['bbox']
+                track.label = det['label']
+                track.confidence = max(track.confidence * 0.7 + det['conf'] * 0.3, det['conf'])
+                track.speed_limit = det['speed_limit']
+                track.hit_count += 1
+                track.miss_count = 0
+                unmatched_det_idx.remove(best_idx)
+                if track.hit_count >= self.min_confirm_hits:
+                    track.state = 'ACTIVE' if odd_ok else 'CONFIRMED'
+                else:
+                    track.state = 'CANDIDATE'
+            else:
+                track.miss_count += 1
+                if track.state == 'CANDIDATE' and track.miss_count > self.max_candidate_misses:
+                    track.state = 'REJECTED'
+                elif track.state in {'CONFIRMED', 'ACTIVE', 'STALE'} and track.miss_count <= self.max_stale_misses:
+                    track.state = 'STALE'
+                elif track.miss_count > self.expire_misses:
+                    track.state = 'EXPIRED'
+
+            if track.state in {'ACTIVE', 'CONFIRMED', 'STALE'}:
+                track.warning_level = self.warning_level_for_family(track.family, track.hit_count >= self.min_confirm_hits, odd_ok and quality_ok)
+                track.source, fused_speed = self.apply_map_fusion(track, self.map_speed_limit_kph)
+                if fused_speed is not None:
+                    track.speed_limit = fused_speed
+            else:
+                track.warning_level = 0
+
+        self.next_id = 1 + max((track.track_id for track in self.tracks), default=0)
+        for det_idx in sorted(unmatched_det_idx):
+            det = detections[det_idx]
+            new_track = ProductionLiteTrack(
+                track_id=self.next_id,
+                label=det['label'],
+                family=det['family'],
+                bbox=det['bbox'],
+                confidence=det['conf'],
+                speed_limit=det['speed_limit'],
+            )
+            new_track.warning_level = self.warning_level_for_family(new_track.family, False, False)
+            self.tracks.append(new_track)
+            self.next_id += 1
+
+        self.tracks = [track for track in self.tracks if track.state not in {'REJECTED', 'EXPIRED'}]
+        return self.tracks
+
+    def choose_primary_track(self) -> Optional[ProductionLiteTrack]:
+        candidates = [t for t in self.tracks if t.state in {'ACTIVE', 'STALE', 'CONFIRMED'}]
+        if not candidates:
+            return None
+        candidates.sort(key=lambda t: (t.warning_level, t.confidence, t.hit_count), reverse=True)
+        return candidates[0]
