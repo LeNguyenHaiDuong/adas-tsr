@@ -21,7 +21,7 @@ from collections import Counter, defaultdict
 import cv2
 import numpy as np
 
-from detectors import YOLODetector, TraditionalDetector, Detections
+from detectors import YOLODetector, Detections
 from tracker import SignTracker, ProductionLiteTracker
 from visualizer import draw_detections, draw_production_lite_overlay
 
@@ -328,28 +328,7 @@ def preprocess(frame: np.ndarray, max_width: int = 960, clahe: bool = False) -> 
     return frame
 
 
-def non_max_suppression_simple(dets: Detections, iou_thresh=0.45) -> Detections:
-    if not dets:
-        return []
-    # Sort by bounding box area descending
-    dets = sorted(dets, key=lambda d: int(d[2] - d[0]) * int(d[3] - d[1]), reverse=True)
-    keep: Detections = []
-    for d in dets:
-        x1, y1, x2, y2 = map(int, d[:4])
-        discard = False
-        for k in keep:
-            kx1, ky1, kx2, ky2 = map(int, k[:4])
-            inter_x1, inter_y1 = max(x1, kx1), max(y1, ky1)
-            inter_x2, inter_y2 = min(x2, kx2), min(y2, ky2)
-            inter = max(0, inter_x2 - inter_x1) * max(0, inter_y2 - inter_y1)
-            area1 = (x2 - x1) * (y2 - y1)
-            area2 = (kx2 - kx1) * (ky2 - ky1)
-            if inter / (area1 + area2 - inter + 1e-6) > iou_thresh:
-                discard = True
-                break
-        if not discard:
-            keep.append(d)
-    return keep
+
 
 
 def scale_detections(dets: List, from_shape: tuple, to_shape: tuple) -> List:
@@ -432,7 +411,6 @@ def main():
     parser.add_argument("--imgsz", type=int, default=640, help="Kích thước inference YOLO")
     parser.add_argument("--max-width", type=int, default=1280, help="Resize frame nếu rộng hơn giá trị này")
     parser.add_argument("--hold", type=int, default=3, help="Giữ detection cũ N frame khi frame mới trống (chỉ dùng nếu tắt tracker)")
-    parser.add_argument("--traditional", action="store_true", help="Bật thêm nhánh CV truyền thống")
     parser.add_argument("--no-display", action="store_true", help="Headless mode")
     parser.add_argument("--no-tracker", action="store_true", help="Tắt tính năng theo vết đối tượng (Tracker)")
     parser.add_argument("--clahe", action="store_true", help="Bật cân bằng sáng thích ứng CLAHE để cải thiện độ tương phản")
@@ -514,7 +492,6 @@ def main():
     # Load detectors
     logger.info(f"Đang tải model YOLO: {weights}")
     yolo_detector = YOLODetector(weights, conf_thres=conf_thres, imgsz=imgsz)
-    trad_detector = TraditionalDetector() if args.traditional else None
 
     # Initialize tracker
     if args.production_lite:
@@ -536,7 +513,6 @@ def main():
         logger.info(f"Config: conf={conf_thres} | imgsz={imgsz}")
         logger.info(
             f"Nguồn: {args.source} | "
-            f"Traditional={'ON' if args.traditional else 'OFF'} | "
             f"Tracker={'OFF' if args.no_tracker else f'ON (min-hits={args.min_hits})'} | "
             f"CLAHE={'ON' if args.clahe else 'OFF'} | "
             f"ROI-Filter={'ON' if args.roi_filter else 'OFF'}"
@@ -712,11 +688,8 @@ def main():
                     t_inf = time.time() - t_inf_start
                     total_inf_time += t_inf
 
-                    # 3. Postprocessing (including Traditional CV if enabled)
+                    # 3. Postprocessing
                     t_post_start = time.time()
-                    if trad_detector is not None:
-                        trad_dets = trad_detector.detect(proc_frame)
-                        yolo_dets = non_max_suppression_simple(yolo_dets + trad_dets)
                     
                     # Scale boxes from proc_frame back to original resolution
                     scaled_dets = scale_detections(yolo_dets, proc_frame.shape, frame.shape)
