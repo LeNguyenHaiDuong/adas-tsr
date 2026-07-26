@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 620" role="img" aria-labelledby="title desc">
+  <title id="title">ROI filter keeps or rejects detections by bounding box center</title>
+  <desc id="desc">A camera frame with excluded top strip, excluded bottom strip, excluded lower center area, and example detection centers.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#334155" />
+    </marker>
+    <style>
+      .label { font: 600 18px Arial, Helvetica, sans-serif; fill: #0f172a; }
+      .small { font: 14px Arial, Helvetica, sans-serif; fill: #334155; }
+      .tiny { font: 12px Arial, Helvetica, sans-serif; fill: #334155; }
+      .axis { stroke: #334155; stroke-width: 2; marker-end: url(#arrow); }
+      .grid { stroke: #64748b; stroke-width: 1.5; stroke-dasharray: 7 7; }
+      .frame { fill: #f8fafc; stroke: #0f172a; stroke-width: 3; }
+      .keep { fill: #dcfce7; }
+      .reject-top-bottom { fill: #fecaca; opacity: 0.82; }
+      .reject-center { fill: #fed7aa; opacity: 0.85; }
+      .bbox-keep { fill: none; stroke: #15803d; stroke-width: 3; }
+      .bbox-reject { fill: none; stroke: #b91c1c; stroke-width: 3; }
+      .dot-keep { fill: #15803d; stroke: #ffffff; stroke-width: 3; }
+      .dot-reject { fill: #b91c1c; stroke: #ffffff; stroke-width: 3; }
+      .legend-box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
+    </style>
+  </defs>
+
+  <rect width="1000" height="620" fill="#ffffff" />
+  <text x="80" y="38" class="label">ROI filter: decision is based on bbox center (cx, cy)</text>
+
+  <g transform="translate(80 70)">
+    <rect x="0" y="0" width="800" height="450" class="frame" />
+    <rect x="0" y="0" width="800" height="450" class="keep" />
+
+    <rect x="0" y="0" width="800" height="22.5" class="reject-top-bottom" />
+    <rect x="0" y="382.5" width="800" height="67.5" class="reject-top-bottom" />
+    <rect x="240" y="315" width="320" height="135" class="reject-center" />
+
+    <line x1="0" y1="22.5" x2="800" y2="22.5" class="grid" />
+    <line x1="0" y1="315" x2="800" y2="315" class="grid" />
+    <line x1="0" y1="382.5" x2="800" y2="382.5" class="grid" />
+    <line x1="240" y1="0" x2="240" y2="450" class="grid" />
+    <line x1="560" y1="0" x2="560" y2="450" class="grid" />
+
+    <text x="8" y="18" class="tiny">reject if cy &lt; 0.05H</text>
+    <text x="580" y="374" class="tiny">reject if cy &gt; 0.85H</text>
+    <text x="302" y="340" class="tiny">reject lower center</text>
+    <text x="282" y="358" class="tiny">0.30W &lt; cx &lt; 0.70W</text>
+    <text x="315" y="376" class="tiny">and cy &gt; 0.70H</text>
+
+    <text x="238" y="-10" text-anchor="middle" class="tiny">0.30W</text>
+    <text x="560" y="-10" text-anchor="middle" class="tiny">0.70W</text>
+    <text x="810" y="27" class="tiny">0.05H</text>
+    <text x="810" y="319" class="tiny">0.70H</text>
+    <text x="810" y="386" class="tiny">0.85H</text>
+
+    <line x1="0" y1="0" x2="130" y2="0" class="axis" />
+    <line x1="0" y1="0" x2="0" y2="100" class="axis" />
+    <text x="138" y="5" class="tiny">x</text>
+    <text x="-16" y="112" class="tiny">y</text>
+    <text x="8" y="-10" class="tiny">(0,0)</text>
+
+    <rect x="604" y="114" width="90" height="68" rx="4" class="bbox-keep" />
+    <circle cx="649" cy="148" r="8" class="dot-keep" />
+    <text x="705" y="145" class="small">A keep</text>
+    <text x="705" y="164" class="tiny">cx=0.78W, cy=0.32H</text>
+
+    <rect x="116" y="-5" width="96" height="46" rx="4" class="bbox-reject" />
+    <circle cx="164" cy="13.5" r="8" class="dot-reject" />
+    <text x="220" y="18" class="small">B reject top</text>
+
+    <rect x="350" y="315" width="100" height="54" rx="4" class="bbox-reject" />
+    <circle cx="400" cy="342" r="8" class="dot-reject" />
+    <text x="455" y="342" class="small">C reject lower-center</text>
+    <text x="455" y="361" class="tiny">cx=0.50W, cy=0.76H</text>
+
+    <rect x="638" y="298" width="100" height="70" rx="4" class="bbox-keep" />
+    <circle cx="688" cy="333" r="8" class="dot-keep" />
+    <text x="746" y="329" class="small">D keep side</text>
+    <text x="746" y="348" class="tiny">cx=0.86W, cy=0.74H</text>
+
+    <rect x="122" y="381" width="108" height="58" rx="4" class="bbox-reject" />
+    <circle cx="176" cy="409.5" r="8" class="dot-reject" />
+    <text x="235" y="414" class="small">E reject bottom</text>
+
+    <rect x="0" y="0" width="800" height="450" fill="none" stroke="#0f172a" stroke-width="3" />
+  </g>
+
+  <g transform="translate(80 548)">
+    <rect x="0" y="0" width="800" height="48" rx="6" class="legend-box" />
+    <rect x="18" y="15" width="22" height="16" class="keep" stroke="#86efac" />
+    <text x="48" y="28" class="small">kept center area</text>
+    <rect x="205" y="15" width="22" height="16" class="reject-top-bottom" />
+    <text x="235" y="28" class="small">top/bottom rejected</text>
+    <rect x="430" y="15" width="22" height="16" class="reject-center" />
+    <text x="460" y="28" class="small">lower-center rejected</text>
+    <circle cx="674" cy="23" r="7" class="dot-keep" />
+    <text x="690" y="28" class="small">center of bbox</text>
+  </g>
+</svg>
