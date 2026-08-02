@@ -42,12 +42,15 @@ nav:
           - Detector Architecture Deep Reference: research/2.knowledge_base/13.detector_architecture_deep_reference.md
       - Implementation:
           - Index: research/3.implementation/00.index.md
-          - Baseline Repo Analysis: research/3.implementation/01.baseline_repo_analysis.md
           - Colab Production-Lite Demo: research/3.implementation/02.colab_production_lite_demo.md
+          - Notebook Analyze: research/3.implementation/10.notebook_analyze.md
+          - Notebook Technique Audit: research/3.implementation/08.notebook_technique_audit.md
           - Experiment and Benchmark Guide: research/3.implementation/03.experiment_benchmark_guide.md
-          - Baseline Repo Analysis Extended: research/3.implementation/04.baseline_repo_analysis_full.md
+          - Baseline Repo Analysis: research/3.implementation/01.baseline_repo_analysis.md
           - Colab Production-Lite Demo Extended: research/3.implementation/05.colab_production_lite_demo_full.md
+          - Baseline Repo Analysis Extended: research/3.implementation/04.baseline_repo_analysis_full.md
       - Presentation:
+          - Index: research/4.presentation/00.index.md
           - Slide Storyboard: research/4.presentation/01.slide_storyboard.md
           - Slide Deck: research/4.presentation/02.slide_deck.md
           - Slide Deck Extended: research/4.presentation/03.slide_deck_full_reference.md
