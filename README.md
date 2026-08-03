@@ -6,7 +6,7 @@ This repository is intentionally kept small and deployment-oriented:
 
 - baseline runtime script: `code/tsr_demo.py`
 - report-style research documents: `research/`
-- production-lite Colab notebook: `research/3.implementation/notebooks/07.tsr_colab_production_lite_demo.ipynb`
+- production-lite Colab notebook: `research/3.implementation/notebooks/01.tsr_colab_production_lite_demo.ipynb`
 - model weights: `models/best.pt`
 - local input/output videos: `videos/`
 
@@ -33,8 +33,8 @@ This repo is not for:
 | `code/tsr_demo.py` | Baseline inference script for quick video/webcam overlay and legacy comparison. |
 | `models/best.pt` | Baseline model weights for 82 Vietnam traffic sign classes. |
 | `research/1.narrative/` | Source-of-truth narrative for the TSR story from prototype to production. |
-| `research/2.knowledge_base/` | Knowledge Base for deep technical topics such as state manager, ODD, SOTIF, detector trade-offs. |
-| `research/3.implementation/` | Repo-facing analysis, Colab demo, experiment and benchmark guidance. |
+| `research/2.knowledge_base/` | Research/system reference for production TSR topics such as state manager, ODD, SOTIF, HMI, diagnostics, and release. |
+| `research/3.implementation/` | Repo-facing analysis, Colab demo, detector architecture, runtime, experiment, and benchmark guidance. |
 | `research/3.implementation/notebooks/` | Notebook artifacts kept separate from Markdown implementation docs. |
 | `research/4.presentation/` | Slide storyboard and presentation-facing material. |
 | `research/0.requirements.md` | Brief gốc của đề tài, đọc trước toàn bộ các layer đã đánh số. |
@@ -237,11 +237,11 @@ All examples below assume you are at the repo root and have already activated th
 
 | Folder | Index |
 |---|---|
-| Requirements | [research/0.requirements.md](research/0.requirements.md) |
-| Narrative | [research/1.narrative/01.prototype_to_production.md](research/1.narrative/01.prototype_to_production.md) |
-| Knowledge Base | [research/2.knowledge_base/00.index.md](research/2.knowledge_base/00.index.md) |
-| Implementation | [research/3.implementation/00.index.md](research/3.implementation/00.index.md) |
-| Presentation | [research/4.presentation/00.index.md](research/4.presentation/00.index.md) |
+| Requirements | [0. Requirements](research/0.requirements.md) |
+| Narrative | [1.01. Prototype to Production Narrative](research/1.narrative/01.prototype_to_production.md) |
+| Knowledge Base | [2.00. Knowledge Base Index](research/2.knowledge_base/00.index.md) |
+| Implementation | [3.00. Implementation Index](research/3.implementation/00.index.md) |
+| Presentation | [4.00. Presentation Index](research/4.presentation/00.index.md) |
 
 ## 11. Publish docs with MkDocs + GitHub Pages
 
