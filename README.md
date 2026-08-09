@@ -1,6 +1,6 @@
 # ADAS TSR - Traffic Sign Recognition
 
-Hệ thống nhận diện biển báo giao thông cho ADAS xe máy tại Việt Nam. Repo này tập trung vào inference thực tế bằng pipeline lai giữa Computer Vision truyền thống và Deep Learning YOLOv8/Ultralytics, kèm bộ tài liệu tuyến tính từ narrative, tiêu chuẩn an toàn, implementation đến presentation.
+Hệ thống nhận diện biển báo giao thông cho ADAS xe máy tại Việt Nam. Repo này tập trung vào inference thực tế bằng pipeline lai giữa Computer Vision truyền thống và Deep Learning YOLOv8/Ultralytics, kèm bộ tài liệu tuyến tính từ requirements, narrative, tiêu chuẩn an toàn đến implementation.
 
 ## 1. Tổng Quan Dự Án
 

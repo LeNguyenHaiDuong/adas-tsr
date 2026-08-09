@@ -1,134 +1,174 @@
-# Spec & Prompt Tái Cấu Trúc và Nâng Cấp Hệ Thống ADAS TSR (Traffic Sign Recognition) - Phiên bản v2
+# Spec & Prompt Tái Cấu Trúc Toàn Diện Hệ Thống ADAS TSR (Phiên bản Tuyến tính Tuần tự - v3)
 
-Tài liệu này được thiết kế như một **Prompt Đặc Tả Kỹ Thuật Tuyến Tính (Linear Engineering Specification & Prompt)** có độ chi tiết cao. Tài liệu giải quyết triệt để vấn đề "vòng lặp nội dung" (circular references) từ bản thảo trước, phân định rõ ràng ranh giới giữa **Bối cảnh phát triển (Narrative)**, **Yêu cầu & Tiêu chuẩn An toàn Thiết kế (Knowledge Base)**, và **Hiện thực hóa Kỹ thuật (Implementation)**.
-
-Bạn có thể cung cấp file này cho các mô hình AI nâng cao (như Claude 3.5 Sonnet, GPT-4o) để tự động hóa việc tái cấu trúc mã nguồn, viết lại tài liệu hoặc dùng làm cẩm nang hướng dẫn trực tiếp cho đội ngũ phát triển dự án `adas-tsr`.
+Tài liệu này được thiết kế như một **Prompt Đặc Tả Kỹ Thuật Tuyến Tính (Linear progressive Engineering Specification Prompt)**. Toàn bộ cấu trúc thư mục, các file tài liệu nghiên cứu trong `research/` và luồng logic của hệ thống được tổ chức lại theo **Luồng Tiến trình Một Chiều (One-Way Progressive Flow)**. Điều này giải quyết triệt để vấn đề "nhảy lại nội dung cũ" (circularity) bằng cách phân định rõ ràng: **Narrative (Đặt vấn đề) -> Knowledge Base (Tiêu chuẩn & Phân tích rủi ro) -> Implementation (Hiện thực hóa bằng Mã nguồn & Kỹ thuật)**.
 
 ---
 
-## 📌 PHẦN 1: PHÂN TÍCH LUỒNG TÀI LIỆU TUYẾN TÍNH (LINEAR FLOW ARCHITECTURE)
+## 📌 PHẦN 1: TƯ DUY THIẾT KẾ & LUỒNG TUYẾN TÍNH MỘT CHIỀU (PROGRESSIVE FLOW RULE)
 
-Để loại bỏ cảm giác đọc bị "nhảy ngược lại nội dung cũ", cấu trúc thư mục tài liệu `research/` được chuẩn hóa theo mô hình **Luồng Tuyến Tính Một Chiều (One-way Progressive Flow)**:
+Để người đọc không bị lặp nội dung hoặc phải đọc nhảy cóc, toàn bộ kho tài liệu được cấu trúc theo một chuỗi giá trị tăng dần, trong đó **file phía sau luôn kế thừa và hiện thực hóa các yêu cầu được định nghĩa ở file phía trước**:
 
 ```
-[1. NARRATIVE: Bối cảnh & Lỗ hổng] 
-       │ (Phát hiện các thiếu hụt khi đưa mô hình AI lên xe máy thực tế)
+[0. Requirements] -> Xác định đề bài tổng thể và mục tiêu dự án
+       │
+[1. Narrative]    -> Phản ánh khoảng cách giữa mô hình mẫu (YOLOv8) và thực tế Việt Nam
+       │
+[2. Knowledge]    -> Chuyển hóa các thách thức thực tế thành Tiêu chuẩn & Phân tích An toàn
+       │             (ISO 26262-12, SOTIF ISO 21448, IEEE 2020-2024, HAZOP, FTA)
        ▼
-[2. KNOWLEDGE BASE: Tiêu chuẩn & Đặc tả An toàn Thiết kế]
-       │ (Chuyển hóa lỗ hổng thành yêu cầu đạt chuẩn ISO 26262-12, SOTIF, IEEE 2020, Euro NCAP)
-       ▼
-[3. IMPLEMENTATION: Hiện thực hóa & Tối ưu hóa mã nguồn]
-       │ (Viết code Python, thiết kế thuật toán lai YOLO+CV, State Manager, CLI để đáp ứng tiêu chuẩn)
-       ▼
-[4. PRESENTATION: Trình diễn & Báo cáo]
+[3. Implementation]-> Lập trình giải thuật nhúng (Hybrid Pipeline, State Manager, HMI)
+                     để đáp ứng chính xác các quy chuẩn an toàn đã đề ra
 ```
 
-### Chi tiết Phân mục và Thứ tự các File trong thư mục `research/`:
+---
 
-#### 📁 Thư mục `research/1.narrative/` (The Story & Context)
-*Mục tiêu:* Đóng vai trò là điểm xuất phát, kể lại câu chuyện phát triển dự án và chỉ ra các ranh giới vận hành cùng lỗ hổng thực tế. **Tuyệt đối không đưa code hoặc phân tích tiêu chuẩn chi tiết vào đây.**
-*   **`01.prototype_to_production.md`**: Hành trình đưa mô hình YOLOv8 từ môi trường nghiên cứu lý thuyết (Google Colab) lên môi trường chạy thực tế trên xe máy tại Việt Nam [55, 56]. Nhận diện các "khoảng trống sản xuất" (Production Gaps): thời tiết khắc nghiệt (mưa mờ), lóa sáng, phần cứng yếu, hiện tượng chớp tắt màn hình hiển thị HMI, và sự cần thiết của các tiêu chuẩn công nghiệp [56].
+## 📂 PHẦN 2: CHI TIẾT THỨ TỰ VÀ NỘI DUNG CÁC FILE TRONG THƯ MỤC `research/`
 
-#### 📁 Thư mục `research/2.knowledge_base/` (Theoretical & Safety Specs)
-*Mục tiêu:* Tiếp nhận các lỗ hổng từ Narrative để chuyển hóa thành các yêu cầu, tiêu chuẩn kỹ thuật và phân tích an toàn hệ thống ở mức thiết kế khái niệm (concept level). **Tuyệt đối không đưa code cụ thể hay tham số CLI vào đây.**
-*   **`01.automotive_standards.md`**: Nghiên cứu sâu về các tiêu chuẩn quốc tế bắt buộc phải tuân thủ:
-    *   **ISO 26262-12**: Đặc tả an toàn chức năng thích ứng cho xe hai bánh, định nghĩa mức rủi ro MSIL (A đến D) và ánh xạ MSIL D sang ASIL C của ô tô để áp dụng quy trình kiểm soát lỗi nghiêm ngặt [2, 6].
-    *   **ISO 21448 (SOTIF)**: Đặc tả an toàn tính năng thiết kế, phân tích 3 nhóm rủi ro: Functional Insufficiencies (thiếu hụt thuật toán), Performance Limitations (giới hạn cảm biến camera khi mưa mờ), và Foreseeable Misuse (người lái lạm dụng tính năng) [3, 38, 39].
-    *   **Euro NCAP Speed Assistance (SAS)**: Quy trình kiểm thử hệ thống cảnh báo tốc độ thông minh (ISA) và nhận diện biển báo (SLIF), cơ chế chấm điểm (Hệ thống kết hợp Camera + Bản đồ đạt tối đa 1.5 điểm) [4, 75, 98].
-*   **`02.camera_sensor_ieee2020.md`**: Tiêu chuẩn chất lượng hình ảnh **IEEE 2020-2024**:
-    *   Định nghĩa 7 chỉ số KPIs cốt lõi để đánh giá camera (Flare, Noise, Dynamic Range CNR, SFR, Flicker MMP, Contrast Performance CTA/CSNR, Distortion) [e-con Systems, Imatest].
-    *   Yêu cầu phần cứng cảm biến CMOS: Dải tương phản động HDR > 120dB, Công nghệ giảm thiểu nhấp nháy đèn LED (LED Flicker Mitigation - LFM) để đọc biển báo điện tử ban ngày.
-    *   Đặc tả hiệu chỉnh ISP (ISP Tuning): Auto Exposure phân vùng Upper-Third, Local Tone Mapping khôi phục chữ số bị chói sáng.
-*   **`03.safety_analysis_hazop_fta.md`**: Tài liệu phân tích an toàn hệ thống:
-    *   Bảng HAZOP chi tiết cho cụm camera (Node 1: Hệ thống quang học & Kính chắn gió, Node 2: Cảm biến CMOS & ISP, Node 3: Thuật toán) đối phó với hiện tượng mưa mờ, lóa sáng [HAZOP].
-    *   Sơ đồ cây phân tích lỗi (Fault Tree Analysis - FTA) truy vết nguyên nhân từ sự kiện đỉnh "TSR không cảnh báo giới hạn tốc độ" xuống các sự kiện cơ bản ở phần cứng, mô hình AI, và đường truyền CAN.
+### 2.1 Requirements & Narrative (Đặt vấn đề & Bối cảnh thực tế)
 
-#### 📁 Thư mục `research/3.implementation/` (Technical Engineering)
-*Mục tiêu:* Hiện thực hóa tất cả các giải pháp kỹ thuật, thuật toán và mã nguồn cụ thể để đáp ứng trực tiếp các tiêu chuẩn an toàn tại Knowledge Base. **Đây là nơi tập trung mã nguồn, cấu hình tham số CLI, và số liệu Benchmark thực tế.**
-*   **`01.hybrid_pipeline_architecture.md`**: Đặc tả thuật toán lai (YOLOv8 + Traditional CV):
-    *   Kiến trúc đường ống xử lý luồng video đa luồng (Multi-threading).
-    *   Hiện thực hóa nhánh **Traditional CV (Hough Circle & Color Thresholding)** hoạt động như một lớp kiểm chứng chéo độc lập (Verification Layer) nhằm giải quyết rủi ro SOTIF về giới hạn thuật toán YOLO [7, 11].
-*   **`02.state_manager_and_hmi.md`**: Giải thuật lọc nhiễu và thiết kế giao diện HMI:
-    *   Mã nguồn giải thuật **State Manager** sử dụng bộ lọc giữ trạng thái thông qua tham số `--hold 3` để duy trì hiển thị biển báo khi gạt mưa đi qua hoặc camera bị mờ tạm thời [13, 63].
-    *   Cơ chế gửi bản tin cảnh báo qua mạng CAN Bus [12].
-    *   Thiết kế giao diện hiển thị trạng thái suy giảm (Degraded Mode) và thông báo tạm ngưng tính năng (Unavailable State) khi chất lượng ảnh dưới chuẩn IEEE 2020 nhằm ngăn chặn hành vi lạm dụng tính năng [3].
-*   **`03.edge_deployment_and_benchmarks.md`**: Tối ưu hóa và kiểm định trên phần cứng nhúng biên (Edge ECU như Jetson Nano):
-    *   Cấu hình tối ưu tài nguyên: Giảm kích thước ảnh đầu vào (`--imgsz 512`), nhảy khung hình (`--skip 1` hoặc `--skip 2`) để duy trì độ trễ ổn định (deterministic latency) [8, 12].
-    *   Cơ chế tự động chuyển đổi cấu hình tiết kiệm năng lượng (CPU-safer degraded mode) khi ECU phát hiện trạng thái quá nhiệt.
-*   **`04.production_lite_demo_notebook.md`**: Hướng dẫn chạy thử nghiệm thực tế:
-    *   Cách sử dụng file `run_demo.sh` để kích hoạt nhanh đường ống xử lý [58].
-    *   Colab production-lite notebook hướng dẫn mô phỏng các bộ lọc nhiễu thời tiết và đánh giá độ chính xác (mAP) cùng hiệu năng (FPS) của hệ thống [56, 57].
+#### 📂 File `research/0.requirements.md` (Đề bài & Mục tiêu Baseline)
+*   **Mục tiêu:** Định hình yêu cầu tổng quan từ phía sản xuất (Product Requirements Document - PRD).
+*   **Nội dung cốt lõi:**
+    *   Tốc độ xử lý yêu cầu tối thiểu trên phần cứng biên (Target FPS >= 15-30 FPS).
+    *   Độ chính xác nhận diện biển báo giới hạn tốc độ tại Việt Nam (mAP50 >= 85%).
+    *   Môi trường vận hành ODD: Đường bộ đô thị và quốc lộ Việt Nam, hỗ trợ cả ngày lẫn đêm.
+
+#### 📂 File `research/1.narrative/01.prototype_to_production.md` (Hành trình thực tế)
+*   **Mục tiêu:** Kể câu chuyện đưa mô hình lý thuyết vào thực tế và chỉ ra các **khoảng cách sản xuất (Production Gaps)**.
+*   **Nội dung cốt lõi:**
+    *   *Giai đoạn Prototype:* Huấn luyện mô hình YOLOv8 đạt mAP cao trên máy chủ GPU mạnh mẽ.
+    *   *Thử thách thực tế (The Reality Shock):* Khi chạy thử trên xe máy ở Việt Nam, hệ thống gặp hàng loạt vấn đề:
+        *   Thời tiết mưa lớn làm camera bị nhòe nước, sương mù che khuất biển báo.
+        *   Đèn pha xe ngược chiều chói lóa vào ban đêm làm điểm ảnh bị cháy sáng.
+        *   Màn hình giao diện hiển thị (HMI) liên tục bị chớp tắt hoặc mất cảnh báo do thuật toán bỏ sót biển báo trong một vài khung hình ngắn hạn.
+        *   Phần cứng nhúng của xe máy (ECU công suất thấp) bị quá nhiệt, quá tải bộ nhớ và giảm xung nhịp xử lý (throttling) khiến độ trễ tăng vọt.
+    *   *Kết luận:* Các khoảng cách này không thể giải quyết đơn thuần bằng cách "huấn luyện thêm dữ liệu", mà bắt buộc phải có một giải pháp thiết kế an toàn hệ thống và tối ưu mã nguồn nhúng.
 
 ---
 
-## 🛠️ PHẦN 2: HƯỚNG DẪN TÁI CẤU TRÚC KHO LƯU TRỮ GITHUB (REPOSITORY RESTRUCTURING)
+### 2.2 Knowledge Base (Quy chuẩn kỹ thuật & Thiết kế an toàn khái niệm)
 
-### 2.1 Cấu trúc file `README.md` mới ở gốc (Root Entrypoint)
-File `README.md` mới phải đóng vai trò là cổng điều hướng cấp cao, không nhồi nhét quá nhiều chi tiết khắc phục sự cố hay tài liệu nghiên cứu sâu [56]. Cấu trúc chuẩn hóa gồm 4 phần:
-1.  **Tổng quan dự án (Project Overview):** Giới thiệu hệ thống TSR xe máy Việt Nam sử dụng đường ống lai [5, 7]. Sơ đồ cấu trúc thư mục rút gọn.
-2.  **Cài đặt & Chuẩn bị nhanh (Quick Start):** Yêu cầu hệ thống và 3 tùy chọn thiết lập môi trường (Conda, Venv, Auto Script) [58]. Hướng dẫn tải Model weights `models/best.pt` tự động [59].
-3.  **Hướng dẫn vận hành & Các lệnh CLI (Usage & CLI Options):** Bảng tham số CLI và các kịch bản chạy demo thực tế (headless, webcam, tối ưu CPU, chạy nhánh lai) [62, 63].
-4.  **Điều hướng tài liệu nghiên cứu (Documentation Index):** Bảng liên kết đến các file index trong thư mục `research/` theo thứ tự tuyến tính [64].
+#### 📂 File `research/2.knowledge_base/01.automotive_standards.md` (Tiêu chuẩn An toàn quốc tế)
+*   **Mục tiêu:** Chuyển hóa các bài toán từ Narrative thành các yêu cầu an toàn định lượng theo tiêu chuẩn quốc tế.
+*   **Nội dung cốt lõi:**
+    *   **ISO 26262-12 (An toàn chức năng xe hai bánh):** Phân tích rủi ro động học của xe máy khi vào cua, rung lắc mạnh. Thiết lập cấp độ an toàn **MSIL B** hoặc **MSIL C** (tương đương ASIL A/B của ô tô). Quy định kiểm thử thông qua Hội đồng CCP (Controllability Classification Panel) để đánh giá khả năng kiểm soát của người lái [6].
+    *   **SOTIF (ISO 21448 - An toàn tính năng thiết kế):** Xác định miền ODD Việt Nam và các giới hạn kích hoạt (triggering conditions). Phân tích rủi ro ngay cả khi không có lỗi phần cứng/phần mềm:
+        *   *Functional Insufficiencies:* YOLOv8 bỏ sót biển báo phụ nhỏ hoặc bị che khuất [3, 5].
+        *   *Performance Limitations:* Camera bị hạt mưa phủ mờ, bám bùn đất [3].
+        *   *Foreseeable Misuse:* Người lái quá chủ quan vào hệ thống hiển thị dẫn đến chạy quá tốc độ khi camera bị mờ [3].
+    *   **Euro NCAP (Speed Assistance Systems - SAS):** Tiêu chuẩn kiểm thử tính năng hỗ trợ tốc độ thông minh (ISA). Yêu cầu nhận diện chính xác biển giới hạn tốc độ cục bộ và biển phụ (sub-signs), duy trì độ sai sót hiển thị dưới 5 km/h và phối hợp dữ liệu camera với bản đồ số (Camera-Map Fusion) để đạt điểm đánh giá tối đa [4, 9].
 
-### 2.2 Tách biệt phần Khắc phục sự cố thành `TROUBLESHOOTING.md`
-Chuyển toàn bộ bảng khắc phục sự cố hiện tại ra khỏi `README.md` để tạo thành file `TROUBLESHOOTING.md` ở thư mục gốc [67]. Hướng dẫn chi tiết cách xử lý lỗi Bus error, lỗi không phát hiện được biển báo, lỗi video 4K chạy chậm, lỗi thiếu model, và lỗi hiển thị GUI trên WSL [67].
+#### 📂 File `research/2.knowledge_base/02.camera_sensor_ieee2020.md` (Đặc tả CMOS, ISP & Chuẩn IEEE 2020-2024)
+*   **Mục tiêu:** Định nghĩa các thông số kỹ thuật tối thiểu của hệ thống cảm biến ảnh để đáp ứng các tiêu chuẩn an toàn trên.
+*   **Nội dung cốt lõi:**
+    *   **Đặc tả CMOS & ISP phần cứng:**
+        *   Dải tương phản động rộng **HDR > 120dB** để chống chói sáng ban đêm và ngược sáng bình minh/hoàng hôn.
+        *   Công nghệ **LED Flicker Mitigation (LFM)**: Tăng thời gian phơi sáng của sub-pixel để chống sọc/mất nét khi camera thu hình biển báo LED điện tử nhấp nháy tần số cao.
+        *   *ISP Tuning:* Thiết lập vùng đo sáng tự động AE tập trung vào khu vực 1/3 phía trên khung hình (Upper-Third), áp dụng Adaptive Histogram Equalization cục bộ để khôi phục chi tiết ảnh mưa mờ [7].
+    *   **Tích hợp tiêu chuẩn IEEE Std 2020™-2024 (Automotive System Image Quality):**
+        *   *Khái niệm:* Tiêu chuẩn quốc tế chuẩn hóa việc đo lường chất lượng hình ảnh cho các thuật toán thị giác máy tính ADAS.
+        *   *7 KPIs đánh giá chất lượng camera:*
+            1.  *Flare (Stray Light):* Đo lượng sáng đi lạc qua thấu kính làm suy giảm tương phản biển báo.
+            2.  *Noise (Nhiễu):* Đo mức nhiễu hạt ban đêm.
+            3.  *Dynamic Range (Dải tương phản):* Đo bằng tỷ số **CNR (Contrast-to-Noise Ratio)** đặc thù thay vì SNR truyền thống nhằm tính đến ảnh hưởng của flare và HDR artifacts.
+            4.  *Spatial Frequency Response (SFR):* Đo độ sắc nét và hàm truyền điều chế MTF dưới tác động của rung động xe máy.
+            5.  *Flicker:* Đo chỉ số **MMP (Modulated Light Mitigation Probability)** để đánh giá hiệu quả chống nhấp nháy LED.
+            6.  *Contrast Performance:* Đo độ phân biệt tương phản thông qua **CTA (Contrast Transfer Accuracy)** và **CSNR (Contrast Signal-to-Noise Ratio)** hoặc **CDP (Contrast Detection Probability)** để đảm bảo nhận diện tốt biển báo trên các nền hậu cảnh phức tạp.
+            7.  *Geometric Calibration Validation:* Đo độ méo hình học của ống kính góc rộng.
+        *   *Ứng dụng thực tế:* Thiết kế một bộ giám sát trực tuyến độ tương phản cục bộ (In-line Contrast Monitor) dựa trên chỉ số **CTA/CSNR** của IEEE 2020. Khi chất lượng hình ảnh giảm sút vượt ngưỡng an toàn do mưa mờ, hệ thống sẽ tự động kích hoạt cơ chế fallback.
 
-### 2.3 Xử lý lỗi Symlinks trên Windows
-Loại bỏ các symlinks vật lý trong thư mục `docs/`. Cập nhật file cấu hình `mkdocs.yml` để sử dụng các plugin hỗ trợ đọc tài liệu ngoài thư mục (như `mkdocs-multirepo-plugin`) hoặc sử dụng một script build Python trung gian tự động copy các file Markdown từ `research/` và `README.md` vào thư mục tạm `docs/` trước khi chạy `mkdocs build` [65].
-
----
-
-## 🛡️ PHẦN 3: ĐẶC TẢ CHI TIẾT CÁC TÀI LIỆU AN TOÀN VÀ TIÊU CHUẨN (KNOWLEDGE BASE)
-
-### 3.1 Phân tích HAZOP cụm camera khi trời mưa mờ
-Bảng HAZOP phải được hiện thực hóa đầy đủ trong `research/2.knowledge_base/03.safety_analysis_hazop_fta.md` với các nút phân tích sau:
-*   **Node 1: Hệ thống quang học & Kính chắn gió (Optical Lens & Windshield):**
-    *   *Sai lệch:* Độ truyền quang bằng Không (No/Loss) do mưa lớn, bụi bẩn, sương muối [3]. Hậu quả là YOLOv8 bỏ sót biển báo (False Negative) [3]. Biện pháp: Tích hợp gạt mưa tự động, sưởi kính, và phát hiện trạng thái Degraded Mode [7].
-    *   *Sai lệch:* Độ sắc nét giảm (Less/Low) do nước mưa chảy loang hoặc rung động mạnh của động cơ xe máy. Hậu quả là lỗi định vị (localization errors) hoặc phân loại nhầm (False Positive) [5, 6]. Biện pháp: Chống rung vật lý theo chuẩn ISO 26262-12, bật DIS trên ISP, và cấu hình `--hold 3` [6, 13].
-*   **Node 2: Cảm biến CMOS & Bộ ISP (Image Sensor & ISP):**
-    *   *Sai lệch:* Độ phơi sáng quá cao (More/High) do chói sáng mặt trời hoặc đèn pha ban đêm. Hậu quả là cháy sáng pixel bão hòa vùng biển báo [3]. Biện pháp: Cảm biến HDR > 120dB, Auto Exposure vùng Upper-third, và chuẩn hóa histogram thích ứng [7].
-*   **Node 3: Thuật toán YOLO & CV Pipeline (YOLOv8 & CV Pipeline):**
-    *   *Sai lệch:* Tần suất xử lý giảm (Less/Low) do ECU nhúng bị quá nhiệt hoặc luồng dữ liệu video 4K vượt quá băng thông [8]. Hậu quả là cảnh báo trễ sau khi phương tiện đã đi qua biển báo [4, 8]. Biện pháp: Chuyển sang CPU-safer Degraded Mode (`--imgsz 512`, `--skip 1` hoặc `--skip 2`), cơ chế tự ngắt quá nhiệt [8].
-
-### 3.2 Phân tích Cây Lỗi (Fault Tree Analysis - FTA)
-Sơ đồ cây lỗi (FTA) phải được vẽ bằng định dạng Markdown Mermaid hoặc văn bản cấu trúc trong `research/2.knowledge_base/03.safety_analysis_hazop_fta.md` với sự kiện đỉnh: **"TSR không hiển thị cảnh báo giới hạn tốc độ nguy hiểm"**.
-*   **Cổng OR cấp 1:** Phân nhánh thành 3 nhóm nguyên nhân lớn:
-    1.  *Lỗi nhận diện từ Camera:* Do sự kiện cơ bản mưa mờ/bụi bẩn bám (A1), lóa sáng CMOS (A2), hoặc thuật toán YOLOv8 bỏ sót (A3) [3, 5].
-    2.  *Lỗi xử lý phần cứng ECU:* Do sự kiện cơ bản tụt xung nhịp vì quá nhiệt (B1) hoặc tràn bộ nhớ OOM (B2) [8, 12].
-    3.  *Lỗi truyền thông và hiển thị HMI:* Do sự kiện cơ bản cáp kết nối vật lý bị lỏng/đứt vì xe máy rung lắc (B3) hoặc nghẽn mạng CAN Bus phương tiện (B4) [6, 12].
-
-### 3.3 Đặc tả Phần cứng CMOS và Hiệu chỉnh ISP (ISP Tuning)
-Tài liệu `research/2.knowledge_base/02.camera_sensor_ieee2020.md` phải đặc tả các yêu cầu kỹ thuật:
-*   **HDR > 120dB:** Sử dụng Multi-exposure HDR hoặc Split-diode pixel để thu ảnh không bị nhòe chuyển động (motion artifacts) ở tốc độ cao.
-*   **LED Flicker Mitigation (LFM):** Kéo dài thời gian phơi sáng của sub-pixel vượt qua chu kỳ nhấp nháy 90Hz - 1000Hz của biển báo điện tử LED để thu được hình ảnh trọn vẹn, tránh sọc ảnh khiến AI không đọc được chữ số.
-*   **ISP Tuning:** Cấu hình đo sáng AE tập trung 1/3 phía trên khung hình (Upper-Third), bật tính năng Local Tone Mapping (LTM) để khử lóa sáng cục bộ ban đêm.
-
-### 3.4 Chuẩn hóa Đánh giá Chất lượng Ảnh theo IEEE 2020-2024
-Tài liệu `research/2.knowledge_base/02.camera_sensor_ieee2020.md` phải trình bày rõ cách áp dụng tiêu chuẩn này:
-*   **Định nghĩa 7 KPIs:** Flare (Ánh sáng đi lạc), Noise (Nhiễu hạt), Dynamic Range (đo bằng Contrast-to-Noise Ratio - CNR), Spatial Frequency Response (SFR - độ sắc nét MTF), Flicker (đo bằng Modulated Light Mitigation Probability - MMP), Contrast Performance Indicator (đo bằng Contrast Transfer Accuracy - CTA và Contrast Signal-to-Noise Ratio - CSNR), và Geometric Calibration Validation (hiệu chuẩn hình học chống méo ống kính góc rộng).
-*   **Cách thức áp dụng thực tế:**
-    1.  *Kiểm thử phòng Lab:* Sử dụng phần mềm **Imatest** hoặc **iQ-Analyzer-X** phân tích ảnh chụp từ test charts chuẩn để tính toán các trị số SFR, CNR, và CTA.
-    2.  *Giám sát Trực tuyến (In-line Monitor):* Viết module Python tính toán nhanh chỉ số tương phản cục bộ (CTA) hoặc CNR trực tiếp trên luồng video đầu vào. Nếu chỉ số giảm xuống dưới ngưỡng an toàn do trời mưa quá mờ, hệ thống lập tức kích hoạt trạng thái an toàn suy giảm (Degraded Mode), phát cảnh báo tạm ngưng tính năng TSR trên màn hình HMI để bảo vệ người lái khỏi rủi ro lạm dụng tính năng [3].
-    3.  *Lựa chọn linh kiện:* Yêu cầu Tier 1 cung cấp datasheet camera cam kết các chỉ số đạt chuẩn IEEE 2020 (đặc biệt là MMP chống nhấp nháy LED và CNR ổn định ở nhiệt độ cao).
+#### 📂 File `research/2.knowledge_base/03.safety_analysis_hazop_fta.md` (Phân tích An toàn HAZOP & FTA)
+*   **Mục tiêu:** Nhận diện và truy vết chi tiết mọi kịch bản lỗi từ vật lý cảm biến lên đến thuật toán.
+*   **Nội dung cốt lõi:**
+    *   **Bảng HAZOP chi tiết cho Camera:** (Bao gồm 3 Nodes: Hệ quang học & Kính chắn gió, Cảm biến CMOS & ISP, Thuật toán YOLOv8 & CV Pipeline) phân tích rõ các sai lệch (No Light, Less Sharpness, Over-exposure, Latency spikes), nguyên nhân, hậu quả và biện pháp khắc phục.
+    *   **Cây Phân tích Lỗi (Fault Tree Analysis - FTA):**
+        *   *Sự kiện đỉnh:* Hệ thống TSR không đưa ra cảnh báo giới hạn tốc độ nguy hiểm cho người lái.
+        *   *Cây lỗi phân rã qua các cổng logic OR/AND:*
+            *   Nhánh 1: Lỗi từ Camera (Mưa mờ bám thấu kính [A1], Lóa sáng CMOS [A2]).
+            *   Nhánh 2: Lỗi thuật toán (YOLOv8 bỏ sót biển nhỏ [A3], Nhánh CV truyền thống báo giả [A4]).
+            *   Nhánh 3: Lỗi phần cứng nhúng (ECU bị giảm xung throttling do quá nhiệt [B1], tràn bộ nhớ rò rỉ RAM [B2]).
+            *   Nhánh 4: Lỗi đường truyền (Đứt cáp vật lý do rung lắc [B3], tắc nghẽn CAN Bus do các ECU an toàn ABS chiếm dụng [B4]).
 
 ---
 
-## 🤖 PHẦN 4: PROMPT GIAO VIỆC CHO AI ĐỂ THỰC THI (AI EXECUTION PROMPT)
+### 2.3 Implementation (Hiện thực hóa bằng Mã nguồn & Giải thuật kỹ thuật)
 
-*Hãy copy đoạn prompt dưới đây để giao việc cho AI thực hiện toàn bộ quy trình tái cấu trúc này:*
+#### 📂 File `research/3.implementation/01.hybrid_pipeline_architecture.md` (Kiến trúc đường ống lai)
+*   **Mục tiêu:** Lập trình giải pháp lai YOLOv8 + Traditional CV để giải quyết các rủi ro bỏ sót biển báo (SOTIF) và duy trì độ trễ ổn định.
+*   **Nội dung cốt lõi:**
+    *   *Cấu trúc đa luồng (Multi-threaded Pipeline):* Tách biệt luồng đọc khung hình OpenCV, luồng suy luận YOLOv8, và luồng vẽ overlay đồ họa lên màn hình nhằm tối ưu hóa FPS.
+    *   *Tích hợp lớp kiểm chứng lai (Hybrid Verification Layer):*
+        *   Khi YOLOv8 phát hiện một vùng nghi ngờ biển báo nhưng có độ tự tin thấp (confidence < 0.25) do trời mưa mờ hoặc ngược sáng.
+        *   Kích hoạt nhánh **Traditional CV** (sử dụng Hough Circle Transform để tìm khối hình tròn và Color Segmentation trong không gian màu HSV để lọc màu đỏ/xanh) chạy song song trên CPU.
+        *   Nếu nhánh CV truyền thống xác nhận có hình dạng và màu sắc biển báo tại tọa độ đó, hệ thống sẽ nâng độ tự tin để giữ nhận diện, ngăn ngừa việc bỏ sót thông tin nguy hiểm.
 
-> **PROMPT THIẾT KẾ & THỰC THI KIẾN TRÚC TUYẾN TÍNH:**
-> "Chào bạn, hãy đóng vai trò là một Chuyên gia Kiến trúc Phần mềm Automotive ADAS và Chuyên gia An toàn Hệ thống (Functional Safety & SOTIF Engineer). Dựa trên đặc tả kiến trúc tuyến tính trong `prompt.md`, hãy thực thi các nhiệm vụ tái cấu trúc và viết lại tài liệu cho kho lưu trữ `adas-tsr` như sau:
-> 
-> 1. **Viết lại file `README.md` mới tại thư mục gốc:** Phải tuân thủ cấu trúc 4 phần trực quan tại Mục 2.1, lược bỏ hoàn toàn các hướng dẫn gỡ lỗi sâu hay lý thuyết an toàn, chỉ giữ vai trò điều hướng vận hành. Đưa bảng liên kết tài liệu `research/` theo đúng thứ tự tuyến tính mới.
-> 2. **Tạo file `TROUBLESHOOTING.md` độc lập tại thư mục gốc:** Chứa bảng hướng dẫn khắc phục sự cố chi tiết đã tách từ README.md cũ.
-> 3. **Viết lại tài liệu `research/1.narrative/01.prototype_to_production.md`:** Tập trung vào câu chuyện dịch chuyển từ Colab lên sản phẩm thực tế, nêu bật các khoảng trống sản xuất (mưa mờ, phần cứng yếu, lóa sáng) mà không lạm dụng code hay phân tích tiêu chuẩn sâu.
-> 4. **Tạo tài liệu `research/2.knowledge_base/01.automotive_standards.md`:** Phân tích chi tiết các tiêu chuẩn ISO 26262-12 (MSIL xe hai bánh), ISO 21448 (SOTIF ODD, các dạng lỗi), và Euro NCAP Speed Assist (quy trình chấm điểm camera + bản đồ).
-> 5. **Tạo tài liệu `research/2.knowledge_base/02.camera_sensor_ieee2020.md`:** Đặc tả chi tiết dải động HDR > 120dB, bộ giảm nhấp nháy LED LFM, hiệu chỉnh ISP (Auto Exposure Upper-Third, Local Tone Mapping), và bộ 7 KPIs tiêu chuẩn IEEE 2020-2024 kèm hướng dẫn áp dụng thực tế (kiểm thử Lab bằng Imatest, viết module giám sát trực tuyến độ tương phản cục bộ CTA).
-> 6. **Tạo tài liệu `research/2.knowledge_base/03.safety_analysis_hazop_fta.md`:** Hiện thực hóa bảng phân tích HAZOP cho camera (Node 1: Quang học, Node 2: CMOS/ISP, Node 3: Thuật toán) và Sơ đồ Cây phân tích lỗi (FTA) dưới dạng văn bản cấu trúc/Mermaid bám sát các sự kiện từ phần cứng đến CAN Bus.
-> 7. **Tạo tài liệu `research/3.implementation/01.hybrid_pipeline_architecture.md`:** Đặc tả kỹ thuật đường ống xử lý đa luồng của `tsr_demo.py` và cách tích hợp nhánh lai YOLOv8 + Traditional CV để làm lớp xác thực độc lập giải quyết yêu cầu an toàn SOTIF.
-> 8. **Tạo tài liệu `research/3.implementation/02.state_manager_and_hmi.md`:** Trình bày giải thuật State Manager xử lý chống chớp tắt biển báo (`--hold 3`), cơ chế bản tin CAN Bus và cách HMI hiển thị cảnh báo Degraded Mode / Unavailable State khi chất lượng ảnh dưới chuẩn chất lượng IEEE 2020.
-> 9. **Tạo tài liệu `research/3.implementation/03.edge_deployment_and_benchmarks.md`:** Hướng dẫn cấu hình tối ưu tài nguyên (`--imgsz 512`, `--skip 1/2`) để duy trì độ trễ ổn định trên Jetson Nano và cơ chế tự động hạ tần suất chạy khi quá nhiệt.
-> 10. **Tạo tài liệu `research/3.implementation/04.production_lite_demo_notebook.md`:** Hướng dẫn chạy `run_demo.sh` và cách sử dụng Colab notebook mô phỏng thời tiết và đánh giá mAP/FPS.
-> 
-> Đảm bảo tất cả nội dung được viết hoàn toàn bằng tiếng Việt chuyên nghiệp, bám sát các thuật ngữ chuyên ngành automotive kỹ thuật cao, tạo nên một luồng đọc tuyến tính mượt mà, tiếp nối chặt chẽ và không lặp lại thông tin."
+#### 📂 File `research/3.implementation/02.state_manager_and_hmi.md` (Bộ quản lý trạng thái, CAN Bus & HMI Thích ứng)
+*   **Mục tiêu:** Khắc phục triệt để hiện tượng chớp tắt hiển thị và lập trình giao diện cảnh báo an toàn thích ứng khi camera bị mưa mờ.
+*   **Nội dung cốt lõi:**
+    *   **Mã giải thuật Bộ quản lý trạng thái (State Manager):**
+        *   Sử dụng cơ chế hàng đợi lưu giữ biển báo đã nhận diện.
+        *   Khi camera bị hạt nước mưa hoặc gạt mưa che khuất biển báo tạm thời, tham số `--hold 3` sẽ ra lệnh cho State Manager tiếp tục hiển thị biển giới hạn tốc độ cũ trong vòng 3 khung hình tiếp theo, tránh việc biến mất đột ngột gây phiền toái cho người lái [9].
+    *   **Cơ chế truyền thông tin qua CAN Bus:** Định nghĩa cấu trúc bản tin CAN (ID, DLC, các byte biểu diễn giá trị giới hạn tốc độ và trạng thái hệ thống) gửi đến cụm đồng hồ xe máy.
+    *   **Lập trình trạng thái HMI thích ứng dựa trên IEEE 2020:**
+        *   Nếu module đo đạc trực tuyến phát hiện chỉ số tương phản cục bộ **CTA / CNR** giảm xuống dưới ngưỡng tối thiểu do mưa quá dày.
+        *   Hệ thống tự động kích hoạt **Trạng thái suy giảm hiệu năng (Degraded Mode)**: tắt bớt nhánh Traditional CV để giảm tải cho CPU, chuyển cấu hình YOLO về siêu nhẹ (`--imgsz 512 --skip 2`).
+        *   Nếu camera hoàn toàn bị phủ nước không thể quan sát, hệ thống phát bản tin CAN báo trạng thái **Unavailable (Không khả dụng do thời tiết)** lên màn hình HMI để người lái chủ động kiểm soát tốc độ bằng mắt thường, triệt tiêu rủi ro lạm dụng tính năng (Foreseeable Misuse).
+
+#### 📂 File `research/3.implementation/03.edge_deployment_and_benchmarks.md` (Tối ưu hóa nhúng & Quản lý quá nhiệt)
+*   **Mục tiêu:** Hiện thực hóa các giải pháp kiểm soát lỗi dòng dữ liệu, quá nhiệt phần cứng biên theo tiêu chuẩn ISO 26262-12.
+*   **Nội dung cốt lõi:**
+    *   *Hướng dẫn tối ưu hóa phần cứng biên (Jetson Nano / Low-cost ECU):*
+        *   Cơ chế nhảy khung hình (`--skip 1` hoặc `--skip 2`) giúp giảm tải tính năng suy luận AI xuống 50% hoặc 66% khi xử lý video độ phân giải cao (4K) [8].
+        *   Giới hạn chiều rộng ảnh đầu vào (`--max-width 1280`) trước khi đưa vào luồng ISP để bảo vệ bộ nhớ đệm [8].
+    *   *Quản lý quá nhiệt và rò rỉ bộ nhớ:*
+        *   Đo nhiệt độ CPU/GPU nhúng định kỳ thông qua sysfs. Nếu nhiệt độ vượt quá 80°C, State Manager sẽ tự động tăng số lượng `--skip` lên tối đa để hạ nhiệt hệ thống (CPU-safer mode).
+        *   Thiết lập cơ chế giải phóng bộ nhớ PyTorch cache tuần hoàn để tránh lỗi tràn bộ nhớ (Out-of-Memory).
+
+#### 📂 File `research/3.implementation/04.production_lite_demo_notebook.md` (Thử nghiệm & Đánh giá)
+*   **Mục tiêu:** Cung cấp công cụ chạy kiểm chứng thực nghiệm và Colab Notebook có khả năng mô phỏng các hiệu ứng thời tiết.
+*   **Nội dung cốt lõi:**
+    *   Mã nguồn Jupyter Notebook kết nối Google Drive tải video road test thực tế của Việt Nam [61].
+    *   Tích hợp các bộ lọc mô phỏng mưa (Rain effect overlay), sương mù (Fog overlay) và lóa sáng (Gaussian Glare) trực tiếp lên video đầu vào bằng thư viện OpenCV.
+    *   Chạy đánh giá benchmark mAP và FPS của mô hình YOLOv8 dưới các mức độ nhiễu mô phỏng khác nhau để chứng minh một cách khoa học tính thuyết phục của kiến trúc lai và bộ lọc State Manager.
+
+---
+
+## 📌 PHẦN 3: ĐẶC TẢ TÁI CẤU TRÚC README.md VÀ TRÁNH LỖI SYMLINKS
+
+### 3.1 Cấu trúc README.md ở Root (Sạch sẽ & Độc lập)
+*   README.md tuyệt đối không chứa các phân tích HAZOP, FTA dài dòng hay định nghĩa IEEE 2020. Nó chỉ đóng vai trò là sách hướng dẫn vận hành nhanh (Quick Start).
+*   Chuyển toàn bộ các bảng xử lý lỗi phần cứng và phần mềm ra file `TROUBLESHOOTING.md` độc lập ở Root. README chỉ để lại liên kết hướng dẫn.
+
+### 3.2 Giải quyết triệt để lỗi Symlinks vật lý trên Windows
+*   *Lý do lỗi:* Thư mục `docs/` sử dụng liên kết tượng trưng (symlinks) trỏ sang `research/` và `README.md`, gây lỗi biên dịch MkDocs trên Windows khi không bật Developer Mode [65].
+*   *Giải pháp thiết kế mới:*
+    *   Xóa bỏ toàn bộ các file symlink vật lý trong thư mục `docs/`.
+    *   Cấu hình file `mkdocs.yml` sử dụng plugin **`mkdocs-multirepo-plugin`** để tự động import các file Markdown từ các thư mục khác nhau khi build trang web tài liệu.
+    *   Hoặc viết một script Python trung gian (`code/build_docs.py`) thực hiện copy tự động các file Markdown từ `research/` và `README.md` vào thư mục tạm thời `docs/` trước khi gọi lệnh `mkdocs build`, đảm bảo dự án chạy mượt mà trên cả Windows, Linux và macOS.
+
+---
+
+## 🤖 PHẦN 4: PROMPT GIAO VIỆC CHI TIẾT CHO AI (AI ACTIONABLE PROMPT)
+
+*Nếu bạn đưa file này cho một AI để thực hiện công việc, hãy copy đoạn prompt dưới đây để bắt đầu:*
+
+> **PROMPT GIAO VIỆC CHO AI:**
+> "Chào bạn, hãy đóng vai trò là một chuyên gia kiến trúc phần mềm Automotive ADAS cao cấp, chuyên gia An toàn Hệ thống (SOTIF & Functional Safety Engineer) và chuyên gia Xử lý Ảnh. Dựa trên tài liệu đặc tả kỹ thuật tuyến tính `prompt.md` trên, hãy thực hiện các nhiệm vụ sau cho kho lưu trữ `adas-tsr`:
+>
+> 1. **Tái cấu trúc Root:**
+>    - Viết lại file `README.md` mới hoàn toàn sạch sẽ theo đúng cấu trúc 4 phần (Tổng quan dự án lai DL+CV, Cài đặt môi trường nhanh, Hướng dẫn chạy CLI, và Bản đồ điều hướng tài liệu).
+>    - Trích xuất toàn bộ bảng xử lý sự cố ra file `TROUBLESHOOTING.md` độc lập.
+>    - Cập nhật cấu hình `mkdocs.yml` loại bỏ các symlink vật lý, thay thế bằng giải pháp tương thích đa nền tảng (sử dụng plugin multirepo hoặc mô tả giải pháp script build tự động).
+>
+> 2. **Xây dựng hệ thống tài liệu nghiên cứu theo luồng tuyến tính một chiều:**
+>    - Tạo file `research/0.requirements.md` định vị rõ đề bài PRD của dự án.
+>    - Tạo file `research/1.narrative/01.prototype_to_production.md` mô tả sinh động hành trình đưa YOLOv8 vào thực tế và chỉ rõ các khoảng trống sản xuất (mưa mờ, chói sáng, quá nhiệt phần cứng biên, chớp tắt HMI).
+>    - Tạo file `research/2.knowledge_base/01.automotive_standards.md` đặc tả chi tiết về cách tuân thủ ISO 26262-12 (MSIL xe hai bánh, vai trò CCP), SOTIF ISO 21448 (ODD Việt Nam, triggering conditions), và Euro NCAP SAS (SLIF/ISA, Camera-Map Fusion).
+>    - Tạo file `research/2.knowledge_base/02.camera_sensor_ieee2020.md` làm rõ cấu hình CMOS (HDR > 120dB, LFM chống nhấp nháy đèn LED), ISP Tuning, và giải thích chi tiết 7 KPIs cốt lõi của tiêu chuẩn chất lượng hình ảnh IEEE 2020-2024 (bao gồm chỉ số CNR, MMP, CTA/CSNR) cùng ứng dụng thiết kế bộ giám sát chất lượng ảnh trực tuyến.
+>    - Tạo file `research/2.knowledge_base/03.safety_analysis_hazop_fta.md` chứa bảng phân tích HAZOP camera hoàn chỉnh và sơ đồ Cây phân tích lỗi (FTA) phân rã logic từ Sự kiện đỉnh xuống các sự kiện cơ bản về thời tiết, thuật toán, phần cứng và dòng truyền mạng CAN.
+>    - Tạo file `research/3.implementation/01.hybrid_pipeline_architecture.md` mô tả cấu trúc lập trình đường ống đa luồng và thuật toán của nhánh kiểm chứng lai YOLOv8 + Traditional CV.
+>    - Tạo file `research/3.implementation/02.state_manager_and_hmi.md` mô tả thuật toán mã nguồn State Manager (`--hold 3`), ánh xạ bản tin CAN Bus và cách lập trình HMI hiển thị thích ứng (Degraded/Unavailable Mode) dựa trên chất lượng ảnh IEEE 2020.
+>    - Tạo file `research/3.implementation/03.edge_deployment_and_benchmarks.md` hướng dẫn tối ưu Jetson Nano (`--imgsz 512`, nhảy khung hình `--skip`) và giải thuật giám sát nhiệt độ, giải phóng bộ nhớ đệm phòng ngừa crash.
+>    - Tạo file `research/3.implementation/04.production_lite_demo_notebook.md` hướng dẫn chạy thử nghiệm, mô phỏng hiệu ứng thời tiết bằng OpenCV và đánh giá mAP/FPS.
+>
+> Hãy viết tất cả các tài liệu này bằng tiếng Việt cực kỳ chuyên nghiệp, bám sát thuật ngữ chuyên ngành kỹ thuật ô tô và sử dụng các tiêu chuẩn an toàn quốc tế làm nền tảng vững chắc cho mọi quyết định thiết kế."
