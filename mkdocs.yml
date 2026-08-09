@@ -28,46 +28,16 @@ nav:
   - Troubleshooting: TROUBLESHOOTING.md
   - Research:
       - 0. Requirements Brief: research/0.requirements.md
-      - Narrative:
+      - 1. Narrative:
           - 1.01. Prototype to Production: research/1.narrative/01.prototype_to_production.md
-          - Legacy Full Reference: research/1.narrative/legacy_prototype_to_production_full_reference.md
-      - Knowledge Base:
-          - 2.00. Index: research/2.knowledge_base/00.index.md
-          - Linear Flow:
-              - 2.01. Automotive Standards: research/2.knowledge_base/01.automotive_standards.md
-              - 2.02. Camera Sensor and IEEE 2020: research/2.knowledge_base/02.camera_sensor_ieee2020.md
-              - 2.03. Safety Analysis HAZOP and FTA: research/2.knowledge_base/03.safety_analysis_hazop_fta.md
-          - Extended References:
-              - Unified Production Reference: research/2.knowledge_base/04.unified_production_reference.md
-              - System Diagram: research/2.knowledge_base/05.system_diagram.md
-              - Sources and Provenance: research/2.knowledge_base/06.sources_and_provenance.md
-              - TSR Feature Architecture: research/2.knowledge_base/07.tsr_feature_architecture.md
-              - State Manager and Sign Lifecycle: research/2.knowledge_base/08.state_manager_and_sign_lifecycle.md
-              - ODD for TSR: research/2.knowledge_base/09.odd_for_tsr.md
-              - SOTIF for TSR: research/2.knowledge_base/10.sotif_for_tsr.md
-              - Verification, Validation, and Release: research/2.knowledge_base/11.verification_validation_and_release.md
-              - HMI, Diagnostics, and Vehicle Interface: research/2.knowledge_base/12.hmi_diagnostics_and_vehicle_interface.md
-              - ISP Image Pipeline for TSR: research/2.knowledge_base/13.isp_image_pipeline_for_tsr.md
-              - Legacy Camera HAZOP, SOTIF, and FTA: research/2.knowledge_base/14.camera_hazop_sotif.md
-              - Legacy Camera Spec and IEEE 2020: research/2.knowledge_base/15.camera_spec_ieee2020.md
-      - Implementation:
-          - 3.00. Index: research/3.implementation/00.index.md
-          - Linear Flow:
-              - 3.01. Hybrid Pipeline Architecture: research/3.implementation/01.hybrid_pipeline_architecture.md
-              - 3.02. State Manager and HMI: research/3.implementation/02.state_manager_and_hmi.md
-              - 3.03. Edge Deployment and Benchmarks: research/3.implementation/03.edge_deployment_and_benchmarks.md
-              - 3.04. Production-Lite Demo Notebook: research/3.implementation/04.production_lite_demo_notebook.md
-          - Existing References:
-              - Colab Production-Lite Demo: research/3.implementation/05.colab_production_lite_demo.md
-              - Notebook Analyze: research/3.implementation/06.notebook_analyze.md
-              - Notebook Technique Audit: research/3.implementation/07.notebook_technique_audit.md
-              - Experiment and Benchmark Guide: research/3.implementation/08.experiment_benchmark_guide.md
-              - Baseline Repo Analysis: research/3.implementation/09.baseline_repo_analysis.md
-              - Detector Architecture Deep Reference: research/3.implementation/10.detector_architecture_deep_reference.md
-              - Colab Production-Lite Demo Extended: research/3.implementation/11.colab_production_lite_demo_full.md
-              - Baseline Repo Analysis Extended: research/3.implementation/12.baseline_repo_analysis_full.md
-              - Detector Architecture Overview: research/3.implementation/13.detector_architecture_overview.md
-              - Dataset and Benchmark Guide: research/3.implementation/14.dataset_and_benchmark_guide.md
+      - 2. Knowledge Base:
+          - 2.01. Automotive Standards, SOTIF, ODD: research/2.knowledge_base/01.automotive_standards.md
+          - 2.02. Camera Hardware and IEEE 2020: research/2.knowledge_base/02.camera_hardware_ieee2020.md
+          - 2.03. Safety Analysis, HAZOP, FTA: research/2.knowledge_base/03.safety_analysis_hazop_fta.md
+      - 3. Implementation:
+          - 3.01. Hybrid Pipeline Architecture: research/3.implementation/01.hybrid_pipeline_architecture.md
+          - 3.02. State Manager and HMI: research/3.implementation/02.state_manager_and_hmi.md
+          - 3.03. Edge Deployment and Benchmarks: research/3.implementation/03.edge_deployment_and_benchmarks.md
   - Videos: videos/README.md
 
 markdown_extensions:

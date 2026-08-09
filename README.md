@@ -216,15 +216,12 @@ Cấu hình runtime khuyến nghị:
 |---|---|
 | Requirements | [0. Requirements](research/0.requirements.md) |
 | Narrative | [1.01. Prototype to Production](research/1.narrative/01.prototype_to_production.md) |
-| Knowledge Base | [2.00. Knowledge Base Index](research/2.knowledge_base/00.index.md) |
-| Automotive Standards | [2.01. Automotive Standards](research/2.knowledge_base/01.automotive_standards.md) |
-| Camera Sensor IEEE 2020 | [2.02. Camera Sensor and IEEE 2020](research/2.knowledge_base/02.camera_sensor_ieee2020.md) |
-| Safety HAZOP/FTA | [2.03. Safety Analysis HAZOP and FTA](research/2.knowledge_base/03.safety_analysis_hazop_fta.md) |
-| Implementation | [3.00. Implementation Index](research/3.implementation/00.index.md) |
+| Automotive Standards, SOTIF, ODD | [2.01. Automotive Standards](research/2.knowledge_base/01.automotive_standards.md) |
+| Camera Hardware IEEE 2020 | [2.02. Camera Hardware and IEEE 2020](research/2.knowledge_base/02.camera_hardware_ieee2020.md) |
+| Safety HAZOP/FTA & Diagnostics | [2.03. Safety Analysis HAZOP and FTA](research/2.knowledge_base/03.safety_analysis_hazop_fta.md) |
 | Hybrid Pipeline | [3.01. Hybrid Pipeline Architecture](research/3.implementation/01.hybrid_pipeline_architecture.md) |
 | State Manager & HMI | [3.02. State Manager and HMI](research/3.implementation/02.state_manager_and_hmi.md) |
-| Edge Deployment | [3.03. Edge Deployment and Benchmarks](research/3.implementation/03.edge_deployment_and_benchmarks.md) |
-| Production-Lite Demo | [3.04. Production-Lite Demo Notebook](research/3.implementation/04.production_lite_demo_notebook.md) |
+| Edge Deployment, Benchmarks & Notebook | [3.03. Edge Deployment and Benchmarks](research/3.implementation/03.edge_deployment_and_benchmarks.md) |
 | Troubleshooting | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) |
 
 ### Publish docs bằng MkDocs
