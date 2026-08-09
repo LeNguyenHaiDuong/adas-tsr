@@ -1,58 +1,74 @@
-# TSR — Traffic Sign Recognition for ADAS
+# ADAS TSR - Traffic Sign Recognition
 
-Inference-only baseline for Vietnam traffic sign detection using `Ultralytics YOLO` and the model `star092304/traffic-sign-detection-vietnam-yolo`.
+Hệ thống nhận diện biển báo giao thông cho ADAS xe máy tại Việt Nam. Repo này tập trung vào inference thực tế bằng pipeline lai giữa Computer Vision truyền thống và Deep Learning YOLOv8/Ultralytics, kèm bộ tài liệu tuyến tính từ narrative, tiêu chuẩn an toàn, implementation đến presentation.
 
-This repository is intentionally kept small and deployment-oriented:
+## 1. Tổng Quan Dự Án
 
-- baseline runtime script: `code/tsr_demo.py`
-- report-style research documents: `research/`
-- production-lite Colab notebook: `research/3.implementation/notebooks/01.tsr_colab_production_lite_demo.ipynb`
-- model weights: `models/best.pt`
-- local input/output videos: `videos/`
+`adas-tsr` là baseline inference-only cho bài toán Traffic Sign Recognition trong bối cảnh đường Việt Nam. Runtime chính nằm ở `code/tsr_demo.py`, sử dụng checkpoint `models/best.pt` từ model `star092304/traffic-sign-detection-vietnam-yolo` và có thể bật thêm nhánh heuristic CV truyền thống bằng `--traditional`.
 
-> **Editorial scope:** `README.md` là entrypoint vận hành repo: setup, chạy demo, input/output video và publish docs. Narrative hệ thống TSR, gap production và các deep-dive nghiên cứu nằm trong `research/`.
+Repo này hỗ trợ:
 
-## 1. What this repo is for
+- chạy inference trên video file hoặc webcam;
+- xuất video overlay phục vụ demo và kiểm thử nhanh;
+- phân tích thời gian thực trên CPU, NPU/GPU tùy môi trường triển khai;
+- thử nghiệm cấu hình degraded mode cho CPU yếu hoặc video 4K;
+- nghiên cứu ODD Việt Nam, SOTIF, ISO 26262-12, HMI, diagnostics và V&V cho TSR.
 
-This repo is for:
+Repo này không hỗ trợ:
 
-- running TSR inference on a video file or webcam;
-- evaluating the current baseline model on local videos;
-- reading the system-level research/design notes for a real automotive TSR feature.
+- training model từ đầu;
+- lưu dataset nặng trong Git;
+- quản lý artifact benchmark lớn hoặc output tạm trong release branch;
+- thay thế HMI/CAN production thật của phương tiện.
 
-This repo is not for:
+Cấu trúc rút gọn:
 
-- training a new model from scratch;
-- storing large datasets in Git;
-- keeping temporary benchmark artifacts or heavy generated research outputs in the release branch.
+```text
+adas-tsr/
+├── code/
+│   └── tsr_demo.py
+├── models/
+│   └── best.pt
+├── videos/
+│   └── README.md
+├── research/
+│   ├── 0.requirements.md
+│   ├── 1.narrative/
+│   ├── 2.knowledge_base/
+│   └── 3.implementation/
+├── docs/
+│   └── javascripts/mermaid.js
+├── scripts/
+│   └── prepare_docs.py
+├── environment.yml
+├── requirements.txt
+├── requirements-docs.txt
+├── run_demo.sh
+├── mkdocs.yml
+└── TROUBLESHOOTING.md
+```
 
-## 2. Repository layout
+Các file quan trọng:
 
-| Path | Purpose |
+| Path | Vai trò |
 |---|---|
-| `code/tsr_demo.py` | Baseline inference script for quick video/webcam overlay and legacy comparison. |
-| `models/best.pt` | Baseline model weights for 82 Vietnam traffic sign classes. |
-| `research/1.narrative/` | Source-of-truth narrative for the TSR story from prototype to production. |
-| `research/2.knowledge_base/` | Research/system reference for production TSR topics such as state manager, ODD, SOTIF, HMI, diagnostics, and release. |
-| `research/3.implementation/` | Repo-facing analysis, Colab demo, detector architecture, runtime, experiment, and benchmark guidance. |
-| `research/3.implementation/notebooks/` | Notebook artifacts kept separate from Markdown implementation docs. |
-| `research/4.presentation/` | Slide storyboard and presentation-facing material. |
-| `research/0.requirements.md` | Brief gốc của đề tài, đọc trước toàn bộ các layer đã đánh số. |
-| `videos/` | Local input and output videos. This folder is user-managed; sample/output videos are not required to be versioned. |
-| `run_demo.sh` | Convenience script to set up the environment and run inference. |
-| `requirements.txt` | Python package requirements beyond the base PyTorch install. |
-| `environment.yml` | Optional Conda environment definition for a CPU setup. |
+| `code/tsr_demo.py` | Runtime inference YOLO/Ultralytics, overlay video, giữ detection ngắn hạn và nhánh CV heuristic. |
+| `models/best.pt` | Checkpoint baseline cho 82 lớp biển báo giao thông Việt Nam. |
+| `videos/` | Input/output video local; không bắt buộc version video mẫu. |
+| `run_demo.sh` | Script tiện ích tạo môi trường và chạy inference headless. |
+| `research/` | Tài liệu tuyến tính: narrative, knowledge base, implementation và notebook. |
+| `mkdocs.yml` | Cấu hình publish tài liệu bằng MkDocs Material. |
 
-## 3. Prerequisites
+## 2. Cài Đặt Và Chuẩn Bị Nhanh
 
-- Linux or WSL recommended
-- Python `3.11`
-- RAM `>= 4 GB`
-- optional NVIDIA GPU for faster runtime
+Yêu cầu tối thiểu:
 
-## 4. Environment setup
+- Linux hoặc WSL khuyến nghị;
+- Python `3.11`;
+- RAM `>= 4 GB`;
+- GPU/NPU là tùy chọn, CPU vẫn chạy được với cấu hình giảm tải.
 
-### Option A — Conda
+### Option A: Conda
 
 ```bash
 cd adas-tsr
@@ -60,7 +76,7 @@ conda env create -f environment.yml
 conda activate adas-tsr
 ```
 
-### Option B — Python venv
+### Option B: Python venv
 
 ```bash
 cd adas-tsr
@@ -71,7 +87,7 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt
 ```
 
-### Option C — Use the convenience script
+### Option C: Auto Script
 
 ```bash
 cd adas-tsr
@@ -79,22 +95,22 @@ chmod +x run_demo.sh
 ./run_demo.sh /absolute/or/relative/path/to/input.mp4
 ```
 
-If `.venv` does not exist, `run_demo.sh` will create it automatically and install the required packages.
+Nếu `.venv` chưa tồn tại, `run_demo.sh` sẽ tạo môi trường Python `3.11`, cài PyTorch CPU và cài các dependency trong `requirements.txt`.
 
-## 5. Model download
+### Model weights
 
-The repo expects the baseline model at:
+Runtime mặc định tìm checkpoint tại:
 
 ```text
 models/best.pt
 ```
 
-If the file is missing, `tsr_demo.py` and `run_demo.sh` can download it from Hugging Face automatically.  
-You can also download it manually:
+Nếu file thiếu, `code/tsr_demo.py` và `run_demo.sh` có thể tải tự động từ Hugging Face. Có thể tải thủ công bằng:
 
 ```bash
 .venv/bin/python - <<'PY'
 from huggingface_hub import hf_hub_download
+
 hf_hub_download(
     repo_id="star092304/traffic-sign-detection-vietnam-yolo",
     filename="best.pt",
@@ -104,63 +120,24 @@ print("Downloaded models/best.pt")
 PY
 ```
 
-## 6. Video input setup
+### Video input
 
-No input sample video is required to be committed in Git.  
-You have three practical options:
+Không cần commit video mẫu vào Git. Các lựa chọn thực tế:
 
-### Option A — Use your own road or dashcam video
+| Cách dùng | Lệnh |
+|---|---|
+| Dùng video road/dashcam riêng | `mkdir -p videos && cp /path/to/your/dashcam_or_road_video.mp4 videos/input.mp4` |
+| Tải MP4 smoke test để kiểm tra pipeline | `mkdir -p videos && curl -L https://download.samplelib.com/mp4/sample-5s.mp4 -o videos/smoke_test.mp4` |
+| Tải demo video Google Drive bằng `gdown` | `gdown --fuzzy "https://drive.google.com/file/d/1jvMYLCpHR8tJc-bLMggJFDf55-uaAcx_/view?usp=drive_link" -O videos/drive_demo_video.mp4` |
+| Dùng video public khác | `mkdir -p videos && cp /path/to/front_camera_video.mp4 videos/traffic_sign_test.mp4` |
 
-```bash
-mkdir -p videos
-cp /path/to/your/dashcam_or_road_video.mp4 videos/input.mp4
-```
+Để đánh giá TSR có ý nghĩa, nên dùng footage front-facing có biển báo rõ, ánh sáng ổn định và độ phân giải tối thiểu `720p`. Xem thêm [videos/README.md](videos/README.md).
 
-### Option B — Download a generic MP4 for smoke testing
+## 3. Vận Hành Và CLI
 
-This is useful only to verify the pipeline runs end-to-end. It is **not** a meaningful TSR evaluation video.
+Các ví dụ dưới đây giả định bạn đang ở repo root và đã kích hoạt môi trường.
 
-```bash
-mkdir -p videos
-curl -L https://download.samplelib.com/mp4/sample-5s.mp4 -o videos/smoke_test.mp4
-```
-
-### Option C — Download the shared demo video from Google Drive
-
-Shared demo video:
-
-- https://drive.google.com/file/d/1jvMYLCpHR8tJc-bLMggJFDf55-uaAcx_/view?usp=drive_link
-
-If you use `gdown`:
-
-```bash
-mkdir -p videos
-gdown --fuzzy "https://drive.google.com/file/d/1jvMYLCpHR8tJc-bLMggJFDf55-uaAcx_/view?usp=drive_link" -O videos/drive_demo_video.mp4
-```
-
-### Option D — Download a public road video manually
-
-Use any front-facing driving video and place it under `videos/`, for example:
-
-```bash
-mkdir -p videos
-cp /path/to/front_camera_video.mp4 videos/traffic_sign_test.mp4
-```
-
-For meaningful TSR evaluation, prefer:
-
-- front-facing driving footage;
-- visible road signs;
-- daylight or stable night lighting;
-- resolution `>= 720p`.
-
-See also [videos/README.md](videos/README.md).
-
-## 7. Run commands
-
-All examples below assume you are at the repo root and have already activated the environment.
-
-### Headless inference on a video
+### Chạy headless trên video
 
 ```bash
 .venv/bin/python code/tsr_demo.py \
@@ -169,13 +146,13 @@ All examples below assume you are at the repo root and have already activated th
   --output videos/output.mp4
 ```
 
-### Webcam inference
+### Chạy webcam thời gian thực
 
 ```bash
 .venv/bin/python code/tsr_demo.py --source 0
 ```
 
-### Lower confidence threshold for more recall
+### Tăng recall bằng ngưỡng confidence thấp hơn
 
 ```bash
 .venv/bin/python code/tsr_demo.py \
@@ -185,7 +162,7 @@ All examples below assume you are at the repo root and have already activated th
   --conf 0.10
 ```
 
-### CPU-safer 4K processing
+### Tối ưu CPU yếu cho video 4K
 
 ```bash
 .venv/bin/python code/tsr_demo.py \
@@ -197,7 +174,7 @@ All examples below assume you are at the repo root and have already activated th
   --skip 1
 ```
 
-### Enable the heuristic branch
+### Chạy pipeline lai YOLO và CV truyền thống
 
 ```bash
 .venv/bin/python code/tsr_demo.py \
@@ -207,67 +184,57 @@ All examples below assume you are at the repo root and have already activated th
   --traditional
 ```
 
-## 8. CLI parameters
+Tham số CLI:
 
-| Parameter | Default | Description |
-|---|---|---|
-| `--source` | `videos/traffic_sign_test.mp4` | Input video path or webcam index such as `0`. |
-| `--output` | `videos/tsr_demo_output.mp4` | Annotated output video path. |
-| `--weights` | `models/best.pt` | Model weights file. |
-| `--conf` | `0.15` | Confidence threshold. |
-| `--imgsz` | `640` | YOLO inference image size. |
-| `--max-width` | `1280` | Resize frame if wider than this value. |
-| `--skip` | `0` | Skip `N` frames between inference calls. |
-| `--hold` | `3` | Hold previous detections when the current frame is empty. |
-| `--traditional` | `off` | Enable the heuristic CV branch. |
-| `--no-display` | `off` | Run without opening a GUI window. |
+| Tham số | Mặc định | Ý nghĩa |
+|---|---:|---|
+| `--source` | `videos/traffic_sign_test.mp4` | Đường dẫn video input hoặc camera index như `0`. |
+| `--output` | `videos/tsr_demo_output.mp4` | Đường dẫn video đã annotate. |
+| `--weights` | `models/best.pt` | File model weights `.pt`. |
+| `--conf` | `0.15` | Ngưỡng confidence cho YOLO. |
+| `--imgsz` | `640` | Kích thước ảnh inference YOLO. |
+| `--max-width` | `1280` | Resize frame nếu frame rộng hơn giá trị này. |
+| `--skip` | `0` | Bỏ qua `N` frame giữa các lần inference. |
+| `--hold` | `3` | Giữ detection cũ `N` frame khi frame hiện tại không có detection. |
+| `--traditional` | `off` | Bật nhánh CV heuristic HSV/contour. |
+| `--no-display` | `off` | Chạy headless, không mở cửa sổ GUI. |
 
-## 9. Runtime guidance under low-memory CPU setups
+Cấu hình runtime khuyến nghị:
 
-| Use case | Recommended configuration |
+| Tình huống | Cấu hình |
 |---|---|
-| image or short video debug | `imgsz=640`, `skip=0` |
-| 720p lab replay | `imgsz=640`, `max-width=1280` |
-| 4K replay on CPU | `imgsz=512`, `max-width=1280`, `skip=1` |
-| degraded fallback idea | `imgsz=512`, `skip=2`, optionally disable `--traditional` |
+| Debug ảnh hoặc video ngắn | `--imgsz 640 --skip 0` |
+| Replay lab `720p` | `--imgsz 640 --max-width 1280` |
+| Replay `4K` trên CPU | `--imgsz 512 --max-width 1280 --skip 1` |
+| Ý tưởng degraded fallback | `--imgsz 512 --skip 2`, cân nhắc tắt `--traditional` |
 
-## 10. Research documents
+## 4. Điều Hướng Tài Liệu
 
-`README.md` chỉ giữ điều hướng cấp repo. Chi tiết thứ tự đọc và vai trò từng file được gom trong `00.index.md` của từng folder:
+`README.md` chỉ là cổng vào vận hành repo. Tài liệu nghiên cứu chi tiết nằm trong `research/` và đi theo luồng tuyến tính một chiều: narrative chỉ nêu bối cảnh/gap, knowledge base chuyển gap thành tiêu chuẩn, implementation hiện thực hóa kỹ thuật.
 
-| Folder | Index |
+| Nhóm tài liệu | Link |
 |---|---|
 | Requirements | [0. Requirements](research/0.requirements.md) |
-| Narrative | [1.01. Prototype to Production Narrative](research/1.narrative/01.prototype_to_production.md) |
+| Narrative | [1.01. Prototype to Production](research/1.narrative/01.prototype_to_production.md) |
 | Knowledge Base | [2.00. Knowledge Base Index](research/2.knowledge_base/00.index.md) |
+| Automotive Standards | [2.01. Automotive Standards](research/2.knowledge_base/01.automotive_standards.md) |
+| Camera Sensor IEEE 2020 | [2.02. Camera Sensor and IEEE 2020](research/2.knowledge_base/02.camera_sensor_ieee2020.md) |
+| Safety HAZOP/FTA | [2.03. Safety Analysis HAZOP and FTA](research/2.knowledge_base/03.safety_analysis_hazop_fta.md) |
 | Implementation | [3.00. Implementation Index](research/3.implementation/00.index.md) |
-| Presentation | [4.00. Presentation Index](research/4.presentation/00.index.md) |
+| Hybrid Pipeline | [3.01. Hybrid Pipeline Architecture](research/3.implementation/01.hybrid_pipeline_architecture.md) |
+| State Manager & HMI | [3.02. State Manager and HMI](research/3.implementation/02.state_manager_and_hmi.md) |
+| Edge Deployment | [3.03. Edge Deployment and Benchmarks](research/3.implementation/03.edge_deployment_and_benchmarks.md) |
+| Production-Lite Demo | [3.04. Production-Lite Demo Notebook](research/3.implementation/04.production_lite_demo_notebook.md) |
+| Troubleshooting | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) |
 
-## 11. Publish docs with MkDocs + GitHub Pages
+### Publish docs bằng MkDocs
 
-This repo is set up so the existing Markdown can be published as a documentation website with `MkDocs Material`.
-
-### Docs source layout
-
-- `docs/index.md` is a symlink to `README.md`
-- `docs/research/` is a symlink to `research/`
-- `docs/videos/README.md` is a symlink to `videos/README.md`
-- `docs/javascripts/mermaid.js` initializes Mermaid rendering for the published site
-- `mkdocs.yml` defines the navigation, theme, and Mermaid rendering
-
-Edit the original files as usual under `README.md`, `research/`, `code/`, and `videos/`. The docs site will reuse the Markdown sources directly.
-
-### Install docs dependencies
+Repo không dùng symlink vật lý trong `docs/` để tránh lỗi clone trên Windows. Trước khi build hoặc serve, chạy script copy Markdown vào thư mục tạm `.mkdocs_docs/`:
 
 ```bash
 cd adas-tsr
 pip install -r requirements-docs.txt
-```
-
-### Serve locally
-
-```bash
-cd adas-tsr
+python scripts/prepare_docs.py
 mkdocs serve
 ```
 
@@ -277,50 +244,40 @@ Local preview:
 http://127.0.0.1:8000
 ```
 
-### Build static site
+Build static site:
 
 ```bash
 cd adas-tsr
+python scripts/prepare_docs.py
 mkdocs build
 ```
 
-Generated output goes to:
+Output sinh ra tại:
 
 ```text
 site/
 ```
 
-This folder is generated output only. It is safe to delete and rebuild with `mkdocs build`.
+`site/` là output sinh tự động, có thể xóa và build lại bằng `mkdocs build`.
 
-### Deploy to GitHub Pages
-
-Manual deployment:
+Triển khai GitHub Pages thủ công:
 
 ```bash
 cd adas-tsr
+python scripts/prepare_docs.py
 mkdocs gh-deploy
 ```
 
-This repo also includes `.github/workflows/docs.yml` so pushes to `main` or `master` can publish the docs automatically via GitHub Pages Actions.
-
-Expected Pages URL pattern:
+Workflow `.github/workflows/docs.yml` cũng chạy bước `python scripts/prepare_docs.py` trước `mkdocs build --strict`. URL Pages dự kiến:
 
 ```text
 https://<github-username>.github.io/adas-tsr/
 ```
 
-## 12. Troubleshooting
+Ghi chú quản lý Git:
 
-| Issue | What to check |
-|---|---|
-| `Bus error` or import failures | Use Python `3.11`, rebuild `.venv`, install CPU PyTorch explicitly. |
-| No detections | Lower `--conf`, increase `--imgsz`, use a clearer road-sign video. |
-| 4K video too slow | Use `--imgsz 512`, `--max-width 1280`, `--skip 1` or `--skip 2`. |
-| Missing model file | Download `models/best.pt` manually or let the script fetch it. |
-| GUI does not open in WSL | Use `--no-display` and inspect the output video file instead. |
+- dataset training lớn nên nằm ngoài Git;
+- input/output video được quản lý local trong `videos/` trừ khi chủ động version;
+- release branch chỉ giữ runtime script, tài liệu nghiên cứu và notebook tái lập nhẹ, không giữ artifact benchmark nặng.
 
-## 13. Notes for Git and large files
-
-- large training datasets should stay outside Git;
-- input/output videos are managed locally unless you explicitly choose to version them;
-- the release branch keeps the runtime script, report documents, and a lightweight reproducibility notebook, but not heavy generated benchmark artifacts.
+Khi gặp lỗi runtime hoặc lỗi môi trường, xem [TROUBLESHOOTING.md](TROUBLESHOOTING.md).

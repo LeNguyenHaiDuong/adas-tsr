@@ -117,6 +117,7 @@ Thumbs.db
 *.tmp
 *.temp
 site/
+.mkdocs_docs/
 output/
 outputs/
 annotated_*.mp4

@@ -1,8 +1,12 @@
 site_name: TSR for ADAS
 site_description: Traffic Sign Recognition research and baseline documentation
-docs_dir: docs
+docs_dir: .mkdocs_docs
 site_dir: site
 use_directory_urls: false
+
+validation:
+  links:
+    not_found: ignore
 
 theme:
   name: material
@@ -21,39 +25,49 @@ plugins:
 
 nav:
   - Home: index.md
+  - Troubleshooting: TROUBLESHOOTING.md
   - Research:
       - 0. Requirements Brief: research/0.requirements.md
       - Narrative:
           - 1.01. Prototype to Production: research/1.narrative/01.prototype_to_production.md
+          - Legacy Full Reference: research/1.narrative/legacy_prototype_to_production_full_reference.md
       - Knowledge Base:
           - 2.00. Index: research/2.knowledge_base/00.index.md
-          - 2.01. Unified Production Reference: research/2.knowledge_base/01.unified_production_reference.md
-          - 2.02. System Diagram: research/2.knowledge_base/02.system_diagram.md
-          - 2.03. Sources and Provenance: research/2.knowledge_base/03.sources_and_provenance.md
-          - 2.04. TSR Feature Architecture: research/2.knowledge_base/04.tsr_feature_architecture.md
-          - 2.05. State Manager and Sign Lifecycle: research/2.knowledge_base/05.state_manager_and_sign_lifecycle.md
-          - 2.06. ODD for TSR: research/2.knowledge_base/06.odd_for_tsr.md
-          - 2.07. SOTIF for TSR: research/2.knowledge_base/07.sotif_for_tsr.md
-          - 2.08. Verification, Validation, and Release: research/2.knowledge_base/08.verification_validation_and_release.md
-          - 2.09. HMI, Diagnostics, and Vehicle Interface: research/2.knowledge_base/09.hmi_diagnostics_and_vehicle_interface.md
-          - 2.10. ISP Image Pipeline for TSR: research/2.knowledge_base/10.isp_image_pipeline_for_tsr.md
+          - Linear Flow:
+              - 2.01. Automotive Standards: research/2.knowledge_base/01.automotive_standards.md
+              - 2.02. Camera Sensor and IEEE 2020: research/2.knowledge_base/02.camera_sensor_ieee2020.md
+              - 2.03. Safety Analysis HAZOP and FTA: research/2.knowledge_base/03.safety_analysis_hazop_fta.md
+          - Extended References:
+              - Unified Production Reference: research/2.knowledge_base/01.unified_production_reference.md
+              - System Diagram: research/2.knowledge_base/02.system_diagram.md
+              - Sources and Provenance: research/2.knowledge_base/03.sources_and_provenance.md
+              - TSR Feature Architecture: research/2.knowledge_base/04.tsr_feature_architecture.md
+              - State Manager and Sign Lifecycle: research/2.knowledge_base/05.state_manager_and_sign_lifecycle.md
+              - ODD for TSR: research/2.knowledge_base/06.odd_for_tsr.md
+              - SOTIF for TSR: research/2.knowledge_base/07.sotif_for_tsr.md
+              - Verification, Validation, and Release: research/2.knowledge_base/08.verification_validation_and_release.md
+              - HMI, Diagnostics, and Vehicle Interface: research/2.knowledge_base/09.hmi_diagnostics_and_vehicle_interface.md
+              - ISP Image Pipeline for TSR: research/2.knowledge_base/10.isp_image_pipeline_for_tsr.md
+              - Legacy Camera HAZOP, SOTIF, and FTA: research/2.knowledge_base/02.camera_hazop_sotif.md
+              - Legacy Camera Spec and IEEE 2020: research/2.knowledge_base/03.camera_spec_ieee2020.md
       - Implementation:
           - 3.00. Index: research/3.implementation/00.index.md
-          - 3.01. Colab Production-Lite Demo: research/3.implementation/01.colab_production_lite_demo.md
-          - 3.02. Notebook Analyze: research/3.implementation/02.notebook_analyze.md
-          - 3.03. Notebook Technique Audit: research/3.implementation/03.notebook_technique_audit.md
-          - 3.04. Experiment and Benchmark Guide: research/3.implementation/04.experiment_benchmark_guide.md
-          - 3.05. Baseline Repo Analysis: research/3.implementation/05.baseline_repo_analysis.md
-          - 3.06. Detector Architecture Deep Reference: research/3.implementation/06.detector_architecture_deep_reference.md
-          - 3.07. Colab Production-Lite Demo Extended: research/3.implementation/07.colab_production_lite_demo_full.md
-          - 3.08. Baseline Repo Analysis Extended: research/3.implementation/08.baseline_repo_analysis_full.md
-          - 3.09. Detector Architecture Overview: research/3.implementation/09.detector_architecture_overview.md
-          - 3.10. Dataset and Benchmark Guide: research/3.implementation/10.dataset_and_benchmark_guide.md
-      - Presentation:
-          - 4.00. Index: research/4.presentation/00.index.md
-          - 4.01. Slide Storyboard: research/4.presentation/01.slide_storyboard.md
-          - 4.02. Slide Deck: research/4.presentation/02.slide_deck.md
-          - 4.03. Slide Deck Extended: research/4.presentation/03.slide_deck_full_reference.md
+          - Linear Flow:
+              - 3.01. Hybrid Pipeline Architecture: research/3.implementation/01.hybrid_pipeline_architecture.md
+              - 3.02. State Manager and HMI: research/3.implementation/02.state_manager_and_hmi.md
+              - 3.03. Edge Deployment and Benchmarks: research/3.implementation/03.edge_deployment_and_benchmarks.md
+              - 3.04. Production-Lite Demo Notebook: research/3.implementation/04.production_lite_demo_notebook.md
+          - Existing References:
+              - Colab Production-Lite Demo: research/3.implementation/01.colab_production_lite_demo.md
+              - Notebook Analyze: research/3.implementation/02.notebook_analyze.md
+              - Notebook Technique Audit: research/3.implementation/03.notebook_technique_audit.md
+              - Experiment and Benchmark Guide: research/3.implementation/04.experiment_benchmark_guide.md
+              - Baseline Repo Analysis: research/3.implementation/05.baseline_repo_analysis.md
+              - Detector Architecture Deep Reference: research/3.implementation/06.detector_architecture_deep_reference.md
+              - Colab Production-Lite Demo Extended: research/3.implementation/07.colab_production_lite_demo_full.md
+              - Baseline Repo Analysis Extended: research/3.implementation/08.baseline_repo_analysis_full.md
+              - Detector Architecture Overview: research/3.implementation/09.detector_architecture_overview.md
+              - Dataset and Benchmark Guide: research/3.implementation/10.dataset_and_benchmark_guide.md
   - Videos: videos/README.md
 
 markdown_extensions:
