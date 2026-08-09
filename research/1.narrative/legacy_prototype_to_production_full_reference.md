@@ -80,7 +80,7 @@ Prototype hiện tại chủ yếu cover mạnh hai lớp đầu và một phầ
 
 Tham khảo sâu hơn:
 
-- [2.01. Unified Production Reference](../2.knowledge_base/01.unified_production_reference.md)
+- [2.04. Unified Production Reference](../2.knowledge_base/04.unified_production_reference.md)
 
 ---
 
@@ -163,7 +163,7 @@ flowchart LR
 
 ## 4.4 Hai implementation artifact cần tách bạch
 
-Từ thời điểm repo có thêm notebook [3.01. Colab Production-Lite Demo](../3.implementation/01.colab_production_lite_demo.md), cần tách rõ hai artifact khác nhau:
+Từ thời điểm repo có thêm notebook [3.05. Colab Production-Lite Demo](../3.implementation/05.colab_production_lite_demo.md), cần tách rõ hai artifact khác nhau:
 
 - `Baseline runtime` trong `code/tsr_demo.py`: đây vẫn là prototype giữa kỳ bám video overlay, `hold`, và chưa có quality gate / tracking / JSONL trong code path chính.
 - `Production-lite notebook` trong `research/3.implementation/notebooks/01.tsr_colab_production_lite_demo.ipynb`: đây là sidecar artifact để mô phỏng `quality gate`, `ODD gate`, `IoU tracking`, `track lifecycle`, `warning level`, `events.jsonl`, KPI proxy và optional GT evaluation trên Colab.
@@ -175,8 +175,8 @@ Từ thời điểm repo có thêm notebook [3.01. Colab Production-Lite Demo](.
 
 Implementation evidence:
 
-- [3.05. Baseline Repo Analysis](../3.implementation/05.baseline_repo_analysis.md)
-- Bài đọc sâu hơn: [3.08. Baseline Repo Analysis Full](../3.implementation/08.baseline_repo_analysis_full.md)
+- [3.09. Baseline Repo Analysis](../3.implementation/09.baseline_repo_analysis.md)
+- Bài đọc sâu hơn: [3.12. Baseline Repo Analysis Full](../3.implementation/12.baseline_repo_analysis_full.md)
 
 ---
 
@@ -239,7 +239,7 @@ Prototype hiện có resize cơ bản; nhánh classical CV có thể dùng `HSV`
 
 `Production`
 
-Production thường giả định một chuỗi image conditioning rõ ràng hơn: camera ISP behavior, exposure assumption, blur/glare quality scoring và degraded policy. Chi tiết pipeline `CMOS -> RAW Bayer -> ISP -> RGB/YUV -> YOLO/TSR` nằm ở [2.10. ISP Image Pipeline for TSR](../2.knowledge_base/10.isp_image_pipeline_for_tsr.md).
+Production thường giả định một chuỗi image conditioning rõ ràng hơn: camera ISP behavior, exposure assumption, blur/glare quality scoring và degraded policy. Chi tiết pipeline `CMOS -> RAW Bayer -> ISP -> RGB/YUV -> YOLO/TSR` nằm ở [2.13. ISP Image Pipeline for TSR](../2.knowledge_base/13.isp_image_pipeline_for_tsr.md).
 
 `Current Gap`
 
@@ -255,8 +255,8 @@ Port `frame_quality_score` và các reason code như `blur_high`, `backlight`, `
 
 Tham khảo sâu hơn:
 
-- [2.01. Unified Production Reference](../2.knowledge_base/01.unified_production_reference.md)
-- [3.04. Experiment and Benchmark Guide](../3.implementation/04.experiment_benchmark_guide.md)
+- [2.04. Unified Production Reference](../2.knowledge_base/04.unified_production_reference.md)
+- [3.08. Experiment and Benchmark Guide](../3.implementation/08.experiment_benchmark_guide.md)
 
 ## 6.3 Detection
 
@@ -284,7 +284,7 @@ Output có thể đúng ở mức frame nhưng chưa đáng tin ở mức featur
 
 Tham khảo sâu hơn:
 
-- [3.06. Detector Architecture Deep Reference](../3.implementation/06.detector_architecture_deep_reference.md)
+- [3.10. Detector Architecture Deep Reference](../3.implementation/10.detector_architecture_deep_reference.md)
 
 ## 6.4 Classification / Recognition
 
@@ -313,7 +313,7 @@ Khó quản lý các trường hợp cùng họ biển nhưng confidence dao đ�
 
 Tham khảo sâu hơn:
 
-- [3.06. Detector Architecture Deep Reference](../3.implementation/06.detector_architecture_deep_reference.md)
+- [3.10. Detector Architecture Deep Reference](../3.implementation/10.detector_architecture_deep_reference.md)
 
 ## 6.5 Temporal Filtering Lite
 
@@ -341,7 +341,7 @@ Video có thể trông mượt hơn, nhưng feature behavior vẫn không kiểm
 
 Tham khảo sâu hơn:
 
-- [2.01. Unified Production Reference](../2.knowledge_base/01.unified_production_reference.md)
+- [2.04. Unified Production Reference](../2.knowledge_base/04.unified_production_reference.md)
 
 ## 6.6 Visualization
 
@@ -368,7 +368,7 @@ Người xem dễ hiểu nhầm rằng thứ đang thấy trên video cũng chí
 
 Tham khảo sâu hơn:
 
-- [2.01. Unified Production Reference](../2.knowledge_base/01.unified_production_reference.md)
+- [2.04. Unified Production Reference](../2.knowledge_base/04.unified_production_reference.md)
 
 ## 6.7 Alert
 
@@ -420,8 +420,8 @@ Khó benchmark giữa các version, khó trace nguyên nhân lỗi và khó xây
 
 Implementation evidence:
 
-- [3.05. Baseline Repo Analysis](../3.implementation/05.baseline_repo_analysis.md)
-- [3.01. Colab Production-Lite Demo](../3.implementation/01.colab_production_lite_demo.md)
+- [3.09. Baseline Repo Analysis](../3.implementation/09.baseline_repo_analysis.md)
+- [3.05. Colab Production-Lite Demo](../3.implementation/05.colab_production_lite_demo.md)
 
 ---
 
@@ -432,7 +432,7 @@ Nếu nhìn lại toàn bộ prototype, điều quan trọng nhất không phả
 | Module | Production counterpart | Current gap summary |
 |---|---|---|
 | Input | Camera module + health + time contract | Chưa có sensor/status semantics |
-| Preprocessing | Image quality and ISP-aware conditioning; xem [2.10. ISP Image Pipeline for TSR](../2.knowledge_base/10.isp_image_pipeline_for_tsr.md) | Runtime chính chưa có quality gate; notebook sidecar đã có blur/dark/glare gate |
+| Preprocessing | Image quality and ISP-aware conditioning; xem [2.13. ISP Image Pipeline for TSR](../2.knowledge_base/13.isp_image_pipeline_for_tsr.md) | Runtime chính chưa có quality gate; notebook sidecar đã có blur/dark/glare gate |
 | Detection | Calibrated detector + provenance | Chưa có calibration/provenance đầy đủ |
 | Classification | Confidence-managed sign semantics | Chưa có family/state policy |
 | Temporal | Tracking + lifecycle | Runtime chính vẫn là `hold`; notebook sidecar đã có IoU association + hit/miss |
@@ -511,7 +511,7 @@ Nhưng các block đó vẫn chưa được hợp nhất về runtime chính `ts
 
 Tham khảo sâu hơn:
 
-- [2.01. Unified Production Reference](../2.knowledge_base/01.unified_production_reference.md)
+- [2.04. Unified Production Reference](../2.knowledge_base/04.unified_production_reference.md)
 
 ---
 
@@ -534,7 +534,7 @@ Prototype hiện thay khối này bằng:
 - và notebook sidecar đã có lifecycle lite,
 - nhưng runtime chính vẫn chưa có lifecycle chính thức.
 
-Tham khảo: [2.01. Unified Production Reference](../2.knowledge_base/01.unified_production_reference.md)
+Tham khảo: [2.04. Unified Production Reference](../2.knowledge_base/04.unified_production_reference.md)
 
 ## 9.2 ODD
 
@@ -549,7 +549,7 @@ ODD trả lời câu hỏi: feature được kỳ vọng hoạt động trong m�
 
 Prototype hiện phù hợp nhất với `ODD hẹp`: video nhìn rõ, biển tĩnh, ánh sáng không quá cực đoan, không có yêu cầu integration thật.
 
-Tham khảo: [2.01. Unified Production Reference](../2.knowledge_base/01.unified_production_reference.md)
+Tham khảo: [2.04. Unified Production Reference](../2.knowledge_base/04.unified_production_reference.md)
 
 ## 9.3 SOTIF
 
@@ -571,7 +571,7 @@ Prototype hiện có residual risk cao nhất ở:
 - stale sign do `hold`,
 - sign applicability chưa được kiểm soát.
 
-Tham khảo: [2.01. Unified Production Reference](../2.knowledge_base/01.unified_production_reference.md)
+Tham khảo: [2.04. Unified Production Reference](../2.knowledge_base/04.unified_production_reference.md)
 
 ## 9.4 Verification and Validation
 
@@ -593,7 +593,7 @@ Prototype hiện mới mạnh ở:
 - benchmark runtime thô,
 - một số analysis gắn repo.
 
-Tham khảo: [2.01. Unified Production Reference](../2.knowledge_base/01.unified_production_reference.md)
+Tham khảo: [2.04. Unified Production Reference](../2.knowledge_base/04.unified_production_reference.md)
 
 ---
 
@@ -614,8 +614,8 @@ Khoảng cách hiện tại giữa prototype và production có thể tóm tắt
 
 Implementation evidence chi tiết:
 
-- [3.05. Baseline Repo Analysis](../3.implementation/05.baseline_repo_analysis.md)
-- [3.04. Experiment and Benchmark Guide](../3.implementation/04.experiment_benchmark_guide.md)
+- [3.09. Baseline Repo Analysis](../3.implementation/09.baseline_repo_analysis.md)
+- [3.08. Experiment and Benchmark Guide](../3.implementation/08.experiment_benchmark_guide.md)
 
 ---
 
