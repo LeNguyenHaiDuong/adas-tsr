@@ -1,6 +1,6 @@
 # ADAS TSR - Traffic Sign Recognition
 
-Hệ thống nhận diện biển báo giao thông cho ADAS xe máy tại Việt Nam. Repo này tập trung vào inference thực tế bằng pipeline lai giữa Computer Vision truyền thống và Deep Learning YOLOv8/Ultralytics, kèm bộ tài liệu tuyến tính từ requirements, narrative, tiêu chuẩn an toàn đến implementation.
+Hệ thống nhận diện biển báo giao thông cho ADAS xe 4 bánh trong bối cảnh đường Việt Nam. Repo này tập trung vào inference thực tế bằng pipeline lai giữa Computer Vision truyền thống và Deep Learning YOLOv8/Ultralytics, kèm bộ tài liệu tuyến tính từ requirements, narrative, tiêu chuẩn an toàn đến implementation.
 
 ## 1. Tổng Quan Dự Án
 
@@ -8,18 +8,18 @@ Hệ thống nhận diện biển báo giao thông cho ADAS xe máy tại Việt
 
 Repo này hỗ trợ:
 
-- chạy inference trên video file hoặc webcam;
-- xuất video overlay phục vụ demo và kiểm thử nhanh;
-- phân tích thời gian thực trên CPU, NPU/GPU tùy môi trường triển khai;
-- thử nghiệm cấu hình degraded mode cho CPU yếu hoặc video 4K;
-- nghiên cứu ODD Việt Nam, SOTIF, ISO 26262-12, HMI, diagnostics và V&V cho TSR.
+- Chạy inference trên video file hoặc webcam; đây là đường kiểm thử nhanh nhất để quan sát detector trên dữ liệu đường thật.
+- Xuất video overlay phục vụ demo và kiểm thử nhanh; artifact này giúp review trực quan bbox, nhãn và confidence theo từng frame.
+- Phân tích thời gian thực trên CPU, NPU/GPU tùy môi trường triển khai; mục tiêu là nhìn rõ trade-off giữa độ chính xác, latency và tài nguyên.
+- Thử nghiệm cấu hình degraded mode cho CPU yếu hoặc video 4K; các profile này giúp mô phỏng cách hệ thống giảm tải khi runtime không còn đủ headroom.
+- Nghiên cứu ODD Việt Nam, SOTIF, ISO 26262, HMI, diagnostics và V&V cho TSR trên xe 4 bánh; phần này đặt demo vào bối cảnh automotive có kiểm soát.
 
 Repo này không hỗ trợ:
 
-- training model từ đầu;
-- lưu dataset nặng trong Git;
-- quản lý artifact benchmark lớn hoặc output tạm trong release branch;
-- thay thế HMI/CAN production thật của phương tiện.
+- Training model từ đầu; repo hiện tập trung vào inference và phân tích production gap từ checkpoint có sẵn.
+- Lưu dataset nặng trong Git; dữ liệu lớn nên được quản lý bằng storage/dataset registry riêng để tránh phình repository.
+- Quản lý artifact benchmark lớn hoặc output tạm trong release branch; chỉ nên giữ script, tài liệu và artifact nhẹ có thể tái lập.
+- Thay thế HMI/CAN production thật của phương tiện; các phần HMI, diagnostics và CAN trong repo chỉ là mô hình kỹ thuật để nghiên cứu.
 
 Cấu trúc rút gọn:
 
@@ -273,8 +273,8 @@ https://<github-username>.github.io/adas-tsr/
 
 Ghi chú quản lý Git:
 
-- dataset training lớn nên nằm ngoài Git;
-- input/output video được quản lý local trong `videos/` trừ khi chủ động version;
-- release branch chỉ giữ runtime script, tài liệu nghiên cứu và notebook tái lập nhẹ, không giữ artifact benchmark nặng.
+- Dataset training lớn nên nằm ngoài Git; cách này giữ repo nhẹ và tránh trộn dữ liệu thô với source/documentation.
+- Input/output video được quản lý local trong `videos/` trừ khi chủ động version; video thường lớn và thay đổi theo từng lần replay.
+- Release branch chỉ giữ runtime script, tài liệu nghiên cứu và notebook tái lập nhẹ; artifact benchmark nặng cần sinh lại từ protocol thay vì commit trực tiếp.
 
 Khi gặp lỗi runtime hoặc lỗi môi trường, xem [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
