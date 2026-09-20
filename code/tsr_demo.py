@@ -32,6 +32,10 @@ DEFAULT_VIDEO = ROOT / "videos" / "traffic_sign_test.mp4"
 VN_HF_REPO = "star092304/traffic-sign-detection-vietnam-yolo"
 
 
+import queue
+import threading
+
+
 def load_cta_monitor_class():
     try:
         from cta_monitor import IEEE2020CTAMonitorV2
@@ -47,7 +51,72 @@ def load_cta_monitor_class():
         return module.IEEE2020CTAMonitorV2
 
 
+def load_tracker_class():
+    try:
+        from tracker import RobustTSRTracker
+        return RobustTSRTracker
+    except ImportError:
+        tracker_path = CODE_DIR / "tracker.py"
+        spec = importlib.util.spec_from_file_location("tracker", tracker_path)
+        if spec is None or spec.loader is None:
+            raise
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["tracker"] = module
+        spec.loader.exec_module(module)
+        return module.RobustTSRTracker
+
+
+class ThreadedVideoCapture:
+    """Producer-consumer frame ingest thread to eliminate I/O stalling."""
+
+    def __init__(self, src, queue_size: int = 8, is_live: bool = False):
+        self.cap = cv2.VideoCapture(src)
+        self.is_live = is_live
+        self.q = queue.Queue(maxsize=1 if is_live else max(2, queue_size))
+        self.stopped = False
+        self.thread = threading.Thread(target=self._reader, daemon=True)
+        if self.cap.isOpened():
+            self.thread.start()
+
+    def _reader(self):
+        while not self.stopped:
+            ret, frame = self.cap.read()
+            if not ret:
+                self.stopped = True
+                break
+            if self.is_live:
+                try:
+                    self.q.get_nowait()
+                except queue.Empty:
+                    pass
+            try:
+                self.q.put((ret, frame), timeout=0.1)
+            except queue.Full:
+                pass
+
+    def read(self):
+        if not self.isOpened():
+            return False, None
+        try:
+            return self.q.get(timeout=1.0)
+        except queue.Empty:
+            return False, None
+
+    def release(self):
+        self.stopped = True
+        if self.thread.is_alive():
+            self.thread.join(timeout=0.5)
+        self.cap.release()
+
+    def isOpened(self):
+        return self.cap.isOpened()
+
+    def get(self, prop_id):
+        return self.cap.get(prop_id)
+
+
 IEEE2020CTAMonitorV2 = load_cta_monitor_class()
+RobustTSRTracker = load_tracker_class()
 
 Detection = Tuple[int, int, int, int, str, Tuple[int, int, int], float, str]
 Detections = List[Detection]
@@ -498,7 +567,7 @@ def detect_with_yolo(frame, yolo_model, conf_thres=0.15, imgsz=640) -> Detection
 
 def draw_detections(
     frame,
-    detections: Detections,
+    detections,
     fps=None,
     quality: Optional[ImageQuality] = None,
     thermal: Optional[ThermalState] = None,
@@ -506,12 +575,27 @@ def draw_detections(
     state_reason: str = "",
 ):
     annotated = frame.copy()
-    critical_detected = any(is_critical(d[7]) for d in detections)
+    critical_detected = False
     alert_enabled = hmi_state == QUALITY_OK
 
-    for x1, y1, x2, y2, label, color, conf, _ in detections:
-        cv2.rectangle(annotated, (x1, y1), (x2, y2), color, 2)
-        text = f"{label} {conf:.2f}"
+    for d in detections:
+        if len(d) >= 10:
+            x1, y1, x2, y2, label, color, conf, key, track_id, is_confirmed = d[:10]
+            box_thick = 2 if is_confirmed else 1
+            prefix = f"#{track_id} "
+            if not is_confirmed:
+                prefix += "[?] "
+            text = f"{prefix}{label} {conf:.2f}"
+            if is_critical(key) and is_confirmed:
+                critical_detected = True
+        else:
+            x1, y1, x2, y2, label, color, conf, key = d[:8]
+            box_thick = 2
+            text = f"{label} {conf:.2f}"
+            if is_critical(key):
+                critical_detected = True
+
+        cv2.rectangle(annotated, (x1, y1), (x2, y2), color, box_thick)
         (tw, th), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
         cv2.rectangle(annotated, (x1, y1 - th - 6), (x1 + tw + 4, y1), color, -1)
         cv2.putText(annotated, text, (x1 + 2, y1 - 4), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
@@ -547,7 +631,7 @@ def draw_detections(
     return annotated
 
 
-def scale_detections(dets: Detections, from_shape: tuple, to_shape: tuple) -> Detections:
+def scale_detections(dets, from_shape: tuple, to_shape: tuple):
     """Scale detection boxes from proc_frame size back to original frame size."""
     if not dets:
         return dets
@@ -558,11 +642,13 @@ def scale_detections(dets: Detections, from_shape: tuple, to_shape: tuple) -> De
     sx = tw / max(fw, 1)
     sy = th / max(fh, 1)
     scaled = []
-    for x1, y1, x2, y2, label, col, conf, key in dets:
+    for d in dets:
+        x1, y1, x2, y2 = d[:4]
+        rest = d[4:]
         scaled.append((
             int(x1 * sx), int(y1 * sy),
             int(x2 * sx), int(y2 * sy),
-            label, col, conf, key
+            *rest
         ))
     return scaled
 
@@ -596,19 +682,28 @@ def load_yolo(weights: Path):
         from ultralytics import YOLO
     except Exception as exc:
         raise SystemExit("[ERROR] Cần cài ultralytics: pip install ultralytics") from exc
+    suffix = weights.suffix.lower()
+    if suffix in (".onnx", ".engine"):
+        print(f"[INFO] Tải model tăng tốc {suffix.upper()}: {weights}")
+        return YOLO(str(weights), task="detect")
     return YOLO(str(weights))
 
 
 def main():
-    parser = argparse.ArgumentParser(description="TSR Inference Demo (YOLO .pt)")
+    parser = argparse.ArgumentParser(description="TSR Inference Demo (YOLO .pt / .onnx / .engine)")
     parser.add_argument("--source", type=str, default=str(DEFAULT_VIDEO), help="Video path hoặc camera index")
     parser.add_argument("--output", type=str, default=str(ROOT / "videos" / "tsr_demo_output.mp4"), help="Video annotated output")
-    parser.add_argument("--weights", type=str, default=str(DEFAULT_WEIGHTS), help="Đường dẫn file .pt")
+    parser.add_argument("--weights", type=str, default=str(DEFAULT_WEIGHTS), help="Đường dẫn file .pt, .onnx hoặc .engine")
     parser.add_argument("--conf", type=float, default=0.15, help="Confidence threshold (VN model: 0.15 khuyến nghị)")
     parser.add_argument("--skip", type=int, default=0, help="Bỏ qua N frame giữa các lần inference")
     parser.add_argument("--imgsz", type=int, default=640, help="Kích thước inference YOLO")
     parser.add_argument("--max-width", type=int, default=1280, help="Resize frame nếu rộng hơn giá trị này")
-    parser.add_argument("--hold", type=int, default=3, help="Giữ detection cũ N frame khi frame mới trống")
+    parser.add_argument("--tracker", type=str, default="bytetrack", choices=["bytetrack", "hold"], help="Bộ theo dõi: bytetrack (chuẩn MOT) hoặc hold (legacy)")
+    parser.add_argument("--min-confirm", type=int, default=3, help="Số frame tối thiểu để xác nhận biển (khử false alarm)")
+    parser.add_argument("--track-buffer", type=int, default=15, help="Số frame lưu vết track khi tạm thời mất dấu")
+    parser.add_argument("--hold", type=int, default=3, help="Giữ detection cũ N frame khi frame mới trống (chỉ dùng với --tracker hold)")
+    parser.add_argument("--async-capture", dest="async_capture", action="store_true", default=True, help="Bật luồng đọc video bất đồng bộ (Producer-Consumer)")
+    parser.add_argument("--no-async", dest="async_capture", action="store_false", help="Tắt luồng đọc video bất đồng bộ")
     parser.add_argument("--verify-threshold", type=float, default=0.25, help="YOLO confidence dưới ngưỡng này cần Hough+HSV xác minh")
     parser.add_argument("--no-quality-gate", action="store_true", help="Tắt quality gate CTA/CSNR runtime")
     parser.add_argument("--thermal-threshold", type=float, default=80.0, help="Ngưỡng nhiệt độ để vào Degraded Mode")
@@ -618,9 +713,15 @@ def main():
     args = parser.parse_args()
 
     weights = resolve_weights(Path(args.weights))
-
     src = resolve_source(args.source)
-    cap = cv2.VideoCapture(src)
+
+    is_live_src = isinstance(src, int)
+    if args.async_capture:
+        print("[INFO] Kích hoạt ThreadedVideoCapture (Producer-Consumer async queue)")
+        cap = ThreadedVideoCapture(src, queue_size=8, is_live=is_live_src)
+    else:
+        cap = cv2.VideoCapture(src)
+
     if not cap.isOpened():
         raise SystemExit(f"[ERROR] Không mở được nguồn: {args.source}")
 
@@ -635,7 +736,6 @@ def main():
     if args.output:
         out_path = Path(args.output)
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        # Prefer avc1 (H.264) for .mp4 to improve player compatibility and timing
         w = None
         if out_path.suffix.lower() == ".mp4":
             for cc in ("avc1", "mp4v", "H264"):
@@ -658,8 +758,9 @@ def main():
     print(f"[INFO] Đang tải model: {weights}")
     yolo_model = load_yolo(weights)
     print(
-        f"[INFO] Classes: {len(yolo_model.names)} | conf={args.conf} | "
-        f"imgsz={args.imgsz} | max_width={args.max_width} | skip={args.skip} | hold={args.hold}"
+        f"[INFO] Tracker: {args.tracker.upper()} (min_confirm={args.min_confirm}) | "
+        f"AsyncCapture={'ON' if args.async_capture else 'OFF'} | conf={args.conf} | "
+        f"imgsz={args.imgsz} | max_width={args.max_width} | skip={args.skip}"
     )
     print(
         f"[INFO] Nguồn: {args.source} | Traditional={'ON' if args.traditional else 'OFF'} | "
@@ -669,6 +770,18 @@ def main():
     frame_idx = 0
     fps_smooth = 0.0
     total_detections = 0
+
+    use_bytetrack = args.tracker == "bytetrack"
+    tsr_tracker = (
+        RobustTSRTracker(
+            track_thresh=args.conf,
+            low_thresh=max(0.08, args.conf * 0.6),
+            track_buffer=args.track_buffer,
+            min_confirm_frames=args.min_confirm,
+        )
+        if use_bytetrack
+        else None
+    )
     state_manager = StateManager(hold_frames=args.hold)
     thermal_monitor = ThermalMonitor(
         threshold_c=args.thermal_threshold,
@@ -715,8 +828,19 @@ def main():
             inst_fps = 1.0 / dt if dt > 0 else 0
             fps_smooth = 0.85 * fps_smooth + 0.15 * inst_fps if fps_smooth > 0 else inst_fps
 
-        accept_new = args.no_quality_gate or quality.state == QUALITY_OK
-        detections = state_manager.update(raw_detections, quality, accept_new=accept_new)
+        if use_bytetrack and tsr_tracker is not None:
+            if quality.state == QUALITY_UNAVAILABLE:
+                tracked = tsr_tracker.update([])
+            else:
+                tracked = tsr_tracker.update(raw_detections)
+            detections = tracked
+            conf_count = sum(1 for d in tracked if len(d) >= 10 and d[9])
+            state_reason = f"bytetrack:act={len(tsr_tracker.tracked_stracks)}:conf={conf_count}"
+        else:
+            accept_new = args.no_quality_gate or quality.state == QUALITY_OK
+            detections = state_manager.update(raw_detections, quality, accept_new=accept_new)
+            state_reason = state_manager.reason
+
         total_detections += len(detections)
 
         hmi_state = hmi_state_for(quality, thermal)

@@ -52,7 +52,9 @@ Các file quan trọng:
 
 | Path | Vai trò |
 |---|---|
-| `code/tsr_demo.py` | Runtime inference YOLO/Ultralytics, overlay video, giữ detection ngắn hạn và nhánh CV heuristic. |
+| `code/tsr_demo.py` | Runtime inference YOLO/Ultralytics, overlay video, ByteTrack MOT, và nhánh CV heuristic. |
+| `code/tracker.py` | Bộ theo dõi đa đối tượng ByteTrack (Kalman Filter 8D + Temporal Majority Voting). |
+| `scripts/export_model.py` | Công cụ xuất model YOLO sang ONNX / TensorRT và benchmark hiệu năng. |
 | `models/best.pt` | Checkpoint baseline cho 82 lớp biển báo giao thông Việt Nam. |
 | `videos/` | Input/output video local; không bắt buộc version video mẫu. |
 | `run_demo.sh` | Script tiện ích tạo môi trường và chạy inference headless. |
@@ -143,7 +145,25 @@ Các ví dụ dưới đây giả định bạn đang ở repo root và đã kí
 .venv/bin/python code/tsr_demo.py \
   --no-display \
   --source videos/input.mp4 \
-  --output videos/output.mp4
+  --output videos/output.mp4 \
+  --tracker bytetrack \
+  --min-confirm 3 \
+  --async-capture
+```
+
+### Chạy tăng tốc với model ONNX Runtime
+
+```bash
+# 1. Xuất checkpoint best.pt sang best.onnx
+.venv/bin/python scripts/export_model.py --weights models/best.pt --format onnx --imgsz 640
+
+# 2. Chạy inference trực tiếp trên runtime ONNX
+.venv/bin/python code/tsr_demo.py \
+  --no-display \
+  --weights models/best.onnx \
+  --source videos/input.mp4 \
+  --output videos/output_onnx.mp4 \
+  --tracker bytetrack
 ```
 
 ### Chạy webcam thời gian thực
