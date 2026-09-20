@@ -32,6 +32,8 @@ def main() -> None:
     copy_tree(ROOT / "research", DOCS_BUILD / "research")
     copy_file(ROOT / "videos" / "README.md", DOCS_BUILD / "videos" / "README.md")
     copy_tree(ROOT / "docs" / "javascripts", DOCS_BUILD / "javascripts")
+    if (ROOT / "docs" / "stylesheets").exists():
+        copy_tree(ROOT / "docs" / "stylesheets", DOCS_BUILD / "stylesheets")
 
     print(f"Prepared MkDocs sources in {DOCS_BUILD.relative_to(ROOT)}")
 

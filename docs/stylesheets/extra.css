@@ -1,0 +1,19 @@
+/* Ensure links in article content are clearly distinguishable */
+.md-typeset article a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2.5px;
+}
+
+.md-typeset article a:hover {
+  text-decoration-thickness: 2px;
+  color: var(--md-accent-fg-color);
+}
+
+/* Exclude header anchor icons, buttons, navigation links */
+.md-typeset article .headerlink,
+.md-typeset article .md-button,
+.md-nav a,
+.md-tabs a {
+  text-decoration: none !important;
+}
